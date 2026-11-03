@@ -15,6 +15,7 @@ from starlette.exceptions import HTTPException
 from app.api.router import router
 from app.core.config import get_settings
 from app.core.database import engine
+from app.core.personal import local_request
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logger = logging.getLogger("learnflow")
@@ -23,7 +24,7 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    settings.storage_path.mkdir(parents=True, exist_ok=True)
+    get_settings().storage_path.mkdir(parents=True, exist_ok=True)
     yield
     engine.dispose()
 
@@ -40,9 +41,14 @@ app.add_middleware(
 
 @app.middleware("http")
 async def request_context(request: Request, call_next):
+    settings = get_settings()
     request_id = str(uuid4())
     request.state.request_id = request_id
     started = perf_counter()
+    if settings.app_mode == "personal" and not local_request(request):
+        return JSONResponse(
+            {"detail": "单机模式仅允许本机访问", "request_id": request_id}, status_code=403
+        )
     origin = request.headers.get("origin")
     if (
         request.method in {"POST", "PATCH", "DELETE", "PUT"}
@@ -147,7 +153,12 @@ def health():
             )
             if not vector_version:
                 raise HTTPException(503, "pgvector 尚未启用，请执行数据库迁移")
-    return {"status": "ok", "database": engine.dialect.name, "pgvector": vector_version}
+    return {
+        "status": "ok",
+        "database": engine.dialect.name,
+        "pgvector": vector_version,
+        "mode": get_settings().app_mode,
+    }
 
 
 app.include_router(router)

@@ -65,6 +65,7 @@ def client(db_engine, tmp_path, monkeypatch):
             yield session
 
     monkeypatch.setattr(get_settings(), "storage_path", tmp_path / "storage")
+    monkeypatch.setattr(get_settings(), "app_mode", "multiuser")
     monkeypatch.setattr(get_settings(), "extraction_auto_start", False)
     monkeypatch.setattr(get_settings(), "document_auto_organize", False)
     monkeypatch.setattr(get_settings(), "embedding_auto_index", False)
@@ -77,7 +78,7 @@ def client(db_engine, tmp_path, monkeypatch):
     )
     clear_query_cache()
     app.dependency_overrides[get_db] = override_db
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         yield client
     app.dependency_overrides.clear()
 

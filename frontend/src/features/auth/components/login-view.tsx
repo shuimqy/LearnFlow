@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Layers2, LoaderCircle } from "lucide-react";
 import { useAuth } from "@/features/auth/auth-provider";
-import { Notice } from "@/components/ui";
+import { Notice, Spinner } from "@/components/ui";
 import { api, errorMessage } from "@/lib/http";
 import type { User } from "@/features/auth/types";
 
@@ -35,6 +35,13 @@ export default function LoginPage() {
       setError(errorMessage(err));
       setBusy(false);
     }
+  }
+  if (loading || user) {
+    return (
+      <main className="full-state">
+        <Spinner label="正在进入工作空间" />
+      </main>
+    );
   }
   return (
     <main className="auth-page">

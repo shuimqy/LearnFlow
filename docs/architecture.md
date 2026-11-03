@@ -60,6 +60,8 @@ LearnFlow/
 ├── docs/
 ├── .github/workflows/ci.yml    # 后端、前端和启动器检查
 ├── start.bat
+├── start-personal.bat
+├── start-multiuser.bat
 ├── stop.bat
 ├── setup-postgres.bat
 ├── pyproject.toml              # uv workspace、开发依赖、Ruff 与 pytest
@@ -72,6 +74,7 @@ LearnFlow/
 - `api/` 接收请求、验证归属、调用服务并组装响应。每个模块维护自己的路由，统一在 `router.py` 注册。
 - `models/` 描述持久化结构，`schemas/` 描述接口结构，避免互相混用。新增模型必须在 `models/__init__.py` 导入，供 SQLAlchemy 和 Alembic 发现。
 - `core/` 放多个业务模块共用的基础能力。它不依赖路由。
+- `core/personal.py` 管理单机身份和本机访问边界。两种模式仍使用 `CurrentUser` 和相同归属检查；`/api/auth/me` 告知前端当前模式，不依赖前端构建变量切换认证。
 - `services/` 放文件处理、解析、模型调用等可复用业务逻辑。业务复杂后再拆分具体服务，不为简单查询增加空的中间层。
 - `workers/` 执行后台任务，复用服务层；数据库保留任务状态，Redis 保存队列。
 

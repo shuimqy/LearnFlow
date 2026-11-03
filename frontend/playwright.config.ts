@@ -2,16 +2,18 @@ import path from "node:path";
 import { defineConfig } from "@playwright/test";
 
 const root = path.resolve(__dirname, "..");
+const personal = process.env.LEARNFLOW_TEST_MODE === "personal";
 
 export default defineConfig({
   testDir: "./tests",
+  testMatch: personal ? "personal.spec.ts" : /^(?!.*personal\.spec).*\.spec\.ts$/,
   fullyParallel: false,
   workers: 1,
   timeout: 45_000,
   reporter: "list",
   use: {
     baseURL: "http://127.0.0.1:3100",
-    channel: "msedge",
+    ...(process.platform === "win32" ? { channel: "msedge" } : {}),
     headless: true,
     viewport: { width: 1440, height: 1000 },
     screenshot: "only-on-failure",

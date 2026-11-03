@@ -13,6 +13,7 @@ const databaseEnv = JSON.parse(
 const env = {
   ...process.env,
   ...databaseEnv,
+  APP_MODE: process.env.LEARNFLOW_TEST_MODE || "multiuser",
   STORAGE_PATH: path.join(root, ".local", "browser-storage"),
   ALLOWED_ORIGINS: '["http://127.0.0.1:3100"]',
   COOKIE_SECURE: "false",

@@ -23,6 +23,7 @@ const children = new Set();
 const supervised = new Set();
 let server;
 let state = "starting";
+let mode;
 let stopping = false;
 let cleanup;
 
@@ -79,7 +80,7 @@ async function createControlServer() {
           socket.destroy();
           return;
         }
-        socket.end(JSON.stringify({ project, state, frontendUrl, backendUrl, logs }) + "\n");
+        socket.end(JSON.stringify({ project, state, mode, frontendUrl, backendUrl, logs }) + "\n");
         if (request.command === "stop") setTimeout(() => void shutdown(), 50);
       } catch {
         socket.destroy();
@@ -346,6 +347,10 @@ async function main() {
   const command = process.argv[2] || "start";
   if (!["start", "stop", "status"].includes(command))
     throw new Error("Usage: node scripts/dev.mjs [start|stop|status] [--no-open]");
+  const personal = process.argv.includes("--personal");
+  const multiuser = process.argv.includes("--multiuser");
+  if (personal && multiuser) throw new Error("Choose either --personal or --multiuser.");
+  const requestedMode = personal ? "personal" : multiuser ? "multiuser" : undefined;
   const existing = await control(command === "stop" ? "stop" : "status");
   if (command === "status") {
     console.log(
@@ -368,10 +373,14 @@ async function main() {
     throw new Error("Stopping took longer than expected. Check the startup window.");
   }
   if (existing) {
+    if (requestedMode && existing.mode !== requestedMode)
+      throw new Error("Another mode is already running. Use stop.bat before switching modes.");
     console.log(`LearnFlow is already ${existing.state}. ${frontendUrl}`);
     if (existing.state === "ready" && !process.argv.includes("--no-open")) openBrowser();
     return;
   }
+  if (requestedMode) process.env.APP_MODE = requestedMode;
+  mode = requestedMode || process.env.APP_MODE;
   await mkdir(logs, { recursive: true });
   try {
     await createControlServer();
@@ -409,6 +418,7 @@ async function main() {
     },
   );
   await waitForHttp(`${backendUrl}/api/health`);
+  mode = (await (await fetch(`${backendUrl}/api/health`)).json()).mode;
   void launch(
     "frontend",
     process.execPath,
@@ -427,6 +437,7 @@ async function main() {
   if (stopping) return;
   state = "ready";
   console.log(`\nReady: ${frontendUrl}`);
+  console.log(`Mode: ${mode}`);
   console.log(`API docs: ${backendUrl}/docs`);
   console.log("Keep this window open. Use Ctrl+C or stop.bat to stop both services.\n");
   if (!process.argv.includes("--no-open")) openBrowser();

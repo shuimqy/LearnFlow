@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[3]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env", extra="ignore")
 
+    app_mode: Literal["personal", "multiuser"] = "multiuser"
     database_url: str = "postgresql+psycopg://learnflow:learnflow_local@127.0.0.1:5432/learnflow"
     test_database_url: str | None = None
     manage_local_postgres: bool = False

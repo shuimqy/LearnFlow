@@ -74,6 +74,8 @@ jobs:
         working-directory: frontend
       - run: sudo apt-get install --yes fonts-noto-cjk
       - run: uv run --locked --all-packages pytest -q
+      - run: npm run test:e2e:personal
+        working-directory: frontend
 
   launcher:
     strategy:

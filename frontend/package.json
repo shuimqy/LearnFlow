@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "format:check": "prettier --check src tests scripts *.ts package.json ../scripts/*.mjs",
     "format": "prettier --write src tests scripts *.ts package.json ../scripts/*.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:personal": "playwright test --config playwright.personal.config.ts"
   },
   "dependencies": {
     "katex": "^0.19.1",

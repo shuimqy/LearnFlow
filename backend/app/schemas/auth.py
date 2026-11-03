@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.schemas.base import Output
@@ -28,3 +30,7 @@ class UserOut(Output):
     id: str
     email: str
     name: str
+
+
+class SessionOut(UserOut):
+    mode: Literal["personal", "multiuser"] = "multiuser"

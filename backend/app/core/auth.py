@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.database import get_db
+from app.core.personal import PERSONAL_USER_ID, personal_user
 from app.models import User, UserSession
 
 DB = Annotated[Session, Depends(get_db)]
@@ -44,6 +45,8 @@ def create_session(db: Session, user_id: str, response: Response) -> None:
 
 
 def get_current_user(request: Request, db: DB) -> User:
+    if get_settings().app_mode == "personal":
+        return personal_user(db)
     token = request.cookies.get(COOKIE_NAME)
     if token:
         user = db.scalar(
@@ -52,6 +55,7 @@ def get_current_user(request: Request, db: DB) -> User:
             .where(
                 UserSession.token_hash == hash_token(token),
                 UserSession.expires_at > datetime.now(UTC),
+                User.id != PERSONAL_USER_ID,
             )
         )
         if user:

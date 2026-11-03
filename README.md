@@ -73,6 +73,19 @@ LearnFlow/
 
 双击根目录 `start.bat`，就绪后自动打开 <http://127.0.0.1:3000>；停止时双击 `stop.bat`。
 
+也可以选择明确的运行模式：
+
+| 入口 | 模式 |
+| --- | --- |
+| `start-personal.bat` | 单机模式，免注册、免登录，直接进入课程页 |
+| `start-multiuser.bat` | 多用户模式，保留注册、登录和账号隔离 |
+| `start.bat` | 使用 `.env` 的 `APP_MODE`，默认 `multiuser` |
+
+单机模式隐藏账号资料和退出入口，在“模型设置”中配置 LLM 与 Embedding。
+只允许本机访问，课程和模型设置由内部本地身份持久保存，清除浏览器 Cookie 不会丢失数据。
+已有账号的课程不会自动导入单机空间；切换模式不会删除任何一方的数据。切换前先运行 `stop.bat`。
+两种模式共用同一套源码、PostgreSQL 与 Redis；这些入口不是独立安装包。
+
 首次启动会同步依赖，准备项目本地 PostgreSQL + pgvector 和 Redis，并执行数据库迁移。无需预先激活虚拟环境或安装 Docker。
 Python 环境统一位于根目录 `.venv/`。启动窗口意外关闭后，监护进程会清理它持有的前后端和队列进程；数据库保持运行。
 
@@ -127,6 +140,7 @@ npm --prefix frontend run format:check
 npm --prefix frontend run build
 npm --prefix frontend run typecheck
 npm --prefix frontend run test:e2e
+npm --prefix frontend run test:e2e:personal
 ```
 
 Linux 上运行 PDF 测试或导出前，需在 `frontend/` 执行 `npx playwright install --with-deps chromium`，并安装中文字体。

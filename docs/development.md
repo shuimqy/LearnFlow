@@ -14,6 +14,17 @@ node scripts/dev.mjs status
 node scripts/dev.mjs stop
 ```
 
+单机模式使用 `start-personal.bat` 或 `node scripts/dev.mjs start --personal`；
+多用户模式使用 `start-multiuser.bat` 或 `node scripts/dev.mjs start --multiuser`。
+显式模式参数仅作用于本次启动，不改写 `.env`。普通 `start.bat` 遵循 `.env` 的 `APP_MODE`。
+已有启动器运行其他模式时会拒绝切换，需先用 `stop.bat` 停止。`status` 输出当前模式。
+
+单机模式通过固定的内部用户保留课程、知识、问答和模型设置的归属，不创建登录会话。
+已有账号的 Cookie 在单机模式中不参与身份选择，切回多用户模式后恢复正常校验。
+单机空间与已有账号之间不复制或合并数据，内部用户不能用于多用户登录。
+本机模式校验连接地址、Host、Origin 与代理主机，拒绝非本机及浏览器跨站访问。
+使用反向代理对外提供服务时应使用多用户模式。
+
 加上 `--no-open` 可跳过自动打开浏览器：
 
 ```powershell
@@ -107,6 +118,7 @@ uv run --all-packages alembic -c backend/alembic.ini upgrade head
 
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
+| `APP_MODE` | `multiuser` | `personal` 为免登录单机模式；前端从后端会话响应读取模式 |
 | `DATABASE_URL` | 本机 PostgreSQL 的 `learnflow` 数据库 | 首次启动写入 `.env`，使用随机数据库密码 |
 | `TEST_DATABASE_URL` | 首次初始化生成 `learnflow_test` 连接 | 集成测试专用，库名必须以 `_test` 结尾 |
 | `MANAGE_LOCAL_POSTGRES` | 配置默认 `false`；本机初始化设为 `true` | 是否由项目工具管理 Windows 原生数据库 |
@@ -158,6 +170,7 @@ npm --prefix frontend run format:check
 npm --prefix frontend run build
 npm --prefix frontend run typecheck
 npm --prefix frontend run test:e2e
+npm --prefix frontend run test:e2e:personal
 ```
 
 后端测试在独立 PostgreSQL 测试库运行，每个用例创建随机 schema，执行真实 Alembic 迁移，
@@ -168,6 +181,8 @@ npm --prefix frontend run test:e2e
 课程增删改查、上传与查看文件、知识修订、公式、课程问答和手机导航。
 浏览器测试使用 `learnflow_browser_test` 数据库及 `.local/browser-storage/`，预览截图位于 `.local/previews/`。
 测试前端使用 `.next-e2e/` 独立构建目录，可与日常开发服务同时运行。
+单机浏览器测试使用相同的独立端口和测试库，需与多用户浏览器测试依次执行。
+覆盖免登录、上传课件、知识库、问答、保存模型设置、浏览器重开与登录页自动跳转。
 浏览器测试后端实现位于 `backend/tests/browser_server.py`，由 `scripts/test-backend.mjs` 启动。
 Ruff、pytest 配置统一放在根目录 `pyproject.toml`，Prettier 使用根目录配置。
 GitHub Actions 执行后端检查、前端格式与构建，以及 Windows / Linux 启动器测试。

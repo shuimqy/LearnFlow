@@ -55,7 +55,9 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 }
 
 function ShellContent({ children }: { children: React.ReactNode }) {
-  const { user, setUser } = useAuth();
+  const { user, mode, setUser } = useAuth();
+  const personal = mode === "personal";
+  const settingsTitle = personal ? "模型设置" : "账号设置";
   const { courses, refresh } = useCourses();
   const [createOpen, setCreateOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -126,7 +128,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
           </Link>
           <Link href="/settings" className={`nav-link ${path === "/settings" ? "active" : ""}`}>
             <Settings size={18} />
-            <span>账号设置</span>
+            <span>{settingsTitle}</span>
           </Link>
         </nav>
         <div className="sidebar-section-title">
@@ -149,23 +151,29 @@ function ShellContent({ children }: { children: React.ReactNode }) {
           {!courses.length && <p className="sidebar-empty">创建课程后会显示在这里</p>}
         </nav>
         <div className="sidebar-bottom">
-          {logoutError && <Notice message={logoutError} />}
-          <div className="user-row">
-            <span className="avatar">{user?.name.slice(0, 1)}</span>
-            <Link href="/settings" className="user-copy" aria-label="打开账号设置">
-              <strong>{user?.name}</strong>
-              <span>个人空间</span>
-            </Link>
-            <button
-              className="icon-button"
-              aria-label="退出登录"
-              title="退出登录"
-              onClick={() => void logout()}
-              disabled={loggingOut}
-            >
-              <LogOut size={17} />
-            </button>
-          </div>
+          {personal ? (
+            <div className="workspace-label">单机模式</div>
+          ) : (
+            <>
+              {logoutError && <Notice message={logoutError} />}
+              <div className="user-row">
+                <span className="avatar">{user?.name.slice(0, 1)}</span>
+                <Link href="/settings" className="user-copy" aria-label="打开账号设置">
+                  <strong>{user?.name}</strong>
+                  <span>个人空间</span>
+                </Link>
+                <button
+                  className="icon-button"
+                  aria-label="退出登录"
+                  title="退出登录"
+                  onClick={() => void logout()}
+                  disabled={loggingOut}
+                >
+                  <LogOut size={17} />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </aside>
       <div className={`workspace-body${isChat ? " chat-workspace" : ""}`}>
@@ -199,7 +207,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
               </>
             ) : (
               <span className="breadcrumb-current">
-                {path === "/tasks" ? "处理记录" : path === "/settings" ? "账号设置" : "我的课程"}
+                {path === "/tasks" ? "处理记录" : path === "/settings" ? settingsTitle : "我的课程"}
               </span>
             )}
           </div>

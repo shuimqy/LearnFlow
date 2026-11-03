@@ -13,7 +13,11 @@ function isLocalEndpoint(value: string) {
 }
 
 export default function AccountSettings() {
-  const { user, setUser } = useAuth();
+  const { user, mode, setUser } = useAuth();
+  const personal = mode === "personal";
+  useEffect(() => {
+    document.title = `${personal ? "模型设置" : "账号设置"} | LearnFlow`;
+  }, [personal]);
   const [data, setData] = useState<AccountModels | null>(null);
   const [error, setError] = useState("");
   const [name, setName] = useState(user?.name || "");
@@ -95,48 +99,54 @@ export default function AccountSettings() {
     <>
       <div className="page-heading">
         <div>
-          <div className="eyebrow">个人账号</div>
-          <h1>账号设置</h1>
-          <p>管理基本资料与模型连接，设置对账号下所有课程生效。</p>
+          {!personal && <div className="eyebrow">个人账号</div>}
+          <h1>{personal ? "模型设置" : "账号设置"}</h1>
+          <p>
+            {personal
+              ? "模型设置对本机工作空间中的所有课程生效。"
+              : "管理基本资料与模型连接，设置对账号下所有课程生效。"}
+          </p>
         </div>
         <button className="button secondary" onClick={() => void load()}>
           刷新设置
         </button>
       </div>
       <div className="account-settings">
-        <section className="settings-section" aria-label="基本资料">
-          <div className="settings-section-heading">
-            <Settings2 size={18} />
-            <div>
-              <h2>基本资料</h2>
-              <p>邮箱用于登录，称呼会显示在工作空间中。</p>
+        {!personal && (
+          <section className="settings-section" aria-label="基本资料">
+            <div className="settings-section-heading">
+              <Settings2 size={18} />
+              <div>
+                <h2>基本资料</h2>
+                <p>邮箱用于登录，称呼会显示在工作空间中。</p>
+              </div>
             </div>
-          </div>
-          <form className="settings-fields" onSubmit={saveProfile}>
-            <label>
-              称呼
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={80}
-                required
-              />
-            </label>
-            <label>
-              邮箱
-              <input value={user?.email || ""} disabled />
-            </label>
-            <div className="settings-actions">
-              <button
-                className="button secondary"
-                disabled={profileBusy || !name.trim() || name.trim() === user?.name}
-              >
-                {profileBusy ? "正在保存…" : "保存资料"}
-              </button>
-              {profileMessage && <p role="status">{profileMessage}</p>}
-            </div>
-          </form>
-        </section>
+            <form className="settings-fields" onSubmit={saveProfile}>
+              <label>
+                称呼
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={80}
+                  required
+                />
+              </label>
+              <label>
+                邮箱
+                <input value={user?.email || ""} disabled />
+              </label>
+              <div className="settings-actions">
+                <button
+                  className="button secondary"
+                  disabled={profileBusy || !name.trim() || name.trim() === user?.name}
+                >
+                  {profileBusy ? "正在保存…" : "保存资料"}
+                </button>
+                {profileMessage && <p role="status">{profileMessage}</p>}
+              </div>
+            </form>
+          </section>
+        )}
         {error && <Notice message={error} retry={() => void load()} />}
         {!data && !error && <Spinner label="正在读取模型设置" />}
         {data && (
@@ -149,12 +159,19 @@ export default function AccountSettings() {
               version={data.version}
               onSaved={setData}
             />
-            <section className="settings-section" aria-label="账号知识索引">
+            <section
+              className="settings-section"
+              aria-label={personal ? "本地知识索引" : "账号知识索引"}
+            >
               <div className="settings-section-heading">
                 <RefreshCw size={18} />
                 <div>
                   <h2>知识索引</h2>
-                  <p>所有课程共用账号的 Embedding，各课程的知识仍分别检索。</p>
+                  <p>
+                    {personal
+                      ? "所有课程共用本机的 Embedding 设置，各课程的知识仍分别检索。"
+                      : "所有课程共用账号的 Embedding，各课程的知识仍分别检索。"}
+                  </p>
                 </div>
               </div>
               <div className="settings-index-content">
@@ -249,6 +266,7 @@ function ModelForm({
   version: number;
   onSaved: (value: AccountModels) => void;
 }) {
+  const personal = useAuth().mode === "personal";
   const title = kind === "llm" ? "LLM" : "Embedding";
   const [form, setForm] = useState(initial);
   const [key, setKey] = useState("");
@@ -332,7 +350,7 @@ function ModelForm({
         setForm(kind === "llm" ? result.llm : result.pending_embedding || result.embedding);
         setFeedback(
           kind === "llm"
-            ? "LLM 已保存，对账号下所有课程生效。"
+            ? `LLM 已保存，对${personal ? "本机" : "账号下"}所有课程生效。`
             : result.queued === false
               ? "设置已保存，索引暂未入队，可在下方重试。"
               : result.pending_embedding
@@ -360,7 +378,11 @@ function ModelForm({
           </p>
         </div>
         <span className="settings-source">
-          {initial.source === "system" ? "当前使用系统默认" : "账号自定义"}
+          {initial.source === "system"
+            ? "当前使用系统默认"
+            : personal
+              ? "本机自定义"
+              : "账号自定义"}
         </span>
       </div>
       <form
@@ -567,7 +589,7 @@ function ModelForm({
         )}
         <p className="settings-model-note settings-full">
           {kind === "embedding"
-            ? "保存新的模型、地址、版本或维度会重建账号下所有课程的向量。知识文本会发送到所填写的服务，可能产生调用费用；仅更换密钥无需重建。"
+            ? `保存新的模型、地址、版本或维度会重建${personal ? "本机" : "账号下"}所有课程的向量。知识文本会发送到所填写的服务，可能产生调用费用；仅更换密钥无需重建。`
             : "提问及课件识别时，相关文本或页面图片会发送到所填写的服务。测试连接仅发送固定样本，可能产生调用费用。"}
         </p>
         <div className="settings-actions settings-full">

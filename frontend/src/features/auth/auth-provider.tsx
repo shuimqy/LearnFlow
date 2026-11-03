@@ -2,10 +2,11 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { api, ApiError, errorMessage } from "@/lib/http";
-import type { User } from "./types";
+import type { AppMode, User, UserSession } from "./types";
 
 type AuthState = {
   user: User | null;
+  mode: AppMode;
   loading: boolean;
   error: string;
   reload: () => Promise<void>;
@@ -15,13 +16,16 @@ const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [mode, setMode] = useState<AppMode>("multiuser");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const reload = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      setUser(await api<User>("/auth/me"));
+      const session = await api<UserSession>("/auth/me");
+      setMode(session.mode);
+      setUser(session);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) setUser(null);
       else setError(errorMessage(err));
@@ -33,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void reload();
   }, [reload]);
   return (
-    <AuthContext.Provider value={{ user, loading, error, reload, setUser }}>
+    <AuthContext.Provider value={{ user, mode, loading, error, reload, setUser }}>
       {children}
     </AuthContext.Provider>
   );
