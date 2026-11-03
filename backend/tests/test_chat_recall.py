@@ -148,6 +148,10 @@ def test_embedding_permission_warning_explains_ready_index_can_still_fallback(
     from pydantic import SecretStr
 
     settings = get_settings()
+    monkeypatch.setattr(settings, "embedding_provider", "aliyun")
+    monkeypatch.setattr(
+        settings, "embedding_base_url", "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    )
     monkeypatch.setattr(settings, "embedding_model", "test-embedding")
     monkeypatch.setattr(settings, "embedding_dimensions", 2)
     monkeypatch.setattr(settings, "embedding_api_key", SecretStr("sk-private-test-key"))
