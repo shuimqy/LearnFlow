@@ -127,7 +127,7 @@ Windows 使用 Edge；同一进程限制并发和超时，不公开保存导出�
 - `.editorconfig`、`.gitattributes` 和 Prettier 配置约定缩进、换行与前端格式。`uv.lock` 和 `frontend/package-lock.json` 一并提交。
 - 后端测试位于 `backend/tests/`，只能连接名称以 `_test` 结尾的 PostgreSQL 测试库，每个用例使用独立 schema。
 - 浏览器用例位于 `frontend/tests/`；`scripts/test-backend.mjs` 启动 `backend/tests/browser_server.py`，使用独立测试库和端口。
-- GitHub Actions 检查后端测试与格式、前端格式与构建、Windows / Linux 服务监护进程。浏览器回归在本机执行。
+- GitHub Actions 仅使用 Windows，检查后端测试与格式、前端格式与构建、服务监护进程及单机浏览器流程。多用户浏览器回归在本机执行。
 
 完整检查命令见 [README](../README.md#开发检查)。
 

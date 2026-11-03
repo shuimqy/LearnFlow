@@ -185,7 +185,7 @@ npm --prefix frontend run test:e2e:personal
 覆盖免登录、上传课件、知识库、问答、保存模型设置、浏览器重开与登录页自动跳转。
 浏览器测试后端实现位于 `backend/tests/browser_server.py`，由 `scripts/test-backend.mjs` 启动。
 Ruff、pytest 配置统一放在根目录 `pyproject.toml`，Prettier 使用根目录配置。
-GitHub Actions 执行后端检查、前端格式与构建，以及 Windows / Linux 启动器测试。
+GitHub Actions 仅在 Windows 执行后端检查、前端格式与构建、启动器测试及单机浏览器流程。
 课程知识库的边界、同步机制和当前范围见 [课程知识库](knowledge-base.md)。
 修改建议的 LLM 审查、来源读取和版本保护见 [模型处理修改建议](proposal-review.md)。
 

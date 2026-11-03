@@ -143,8 +143,8 @@ npm --prefix frontend run test:e2e
 npm --prefix frontend run test:e2e:personal
 ```
 
-Linux 上运行 PDF 测试或导出前，需在 `frontend/` 执行 `npx playwright install --with-deps chromium`，并安装中文字体。
-GitHub Actions 检查后端、前端构建和 Windows / Linux 启动监护逻辑；模型测试使用固定响应，不需要真实 API Key。
+当前只验证 Windows，PDF 和浏览器测试使用 Microsoft Edge。
+GitHub Actions 在 Windows 上检查后端、前端构建、启动监护和单机浏览器流程；模型测试使用固定响应，不需要真实 API Key。
 
 ## 功能文档
 
