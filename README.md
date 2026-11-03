@@ -2,7 +2,11 @@
 
 # LearnFlow
 
-课程 PDF 管理 · 知识提取与修订 · 带引用的问答 · 原题做题本
+[![课程 PDF 管理](https://img.shields.io/badge/课程_PDF_管理-426653?style=flat)](#功能)
+[![知识提取与修订](https://img.shields.io/badge/知识提取与修订-52779A?style=flat)](#功能)
+[![带引用的问答](https://img.shields.io/badge/带引用的问答-79669B?style=flat)](#功能)
+[![分支问答](https://img.shields.io/badge/分支问答-478582?style=flat)](#分支问答)
+[![原题做题本](https://img.shields.io/badge/原题做题本-A67A42?style=flat)](#功能)
 
 [![Windows checks](https://github.com/shuimqy/LearnFlow/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/shuimqy/LearnFlow/actions/workflows/ci.yml)
 [![Windows](https://img.shields.io/badge/platform-Windows-426653?style=flat)](#快速开始)
@@ -13,29 +17,38 @@
 
 </div>
 
-LearnFlow 将课程课件、知识库、问答记录和做题本按课程组织。支持免登录的单机模式，也支持按账号隔离的多用户模式，两种模式共用同一套代码。
+LearnFlow 是一个 Agent 与后端开发相结合的实践项目，旨在解决大学生使用网页端对话模型学习时遇到的不便：课件需要反复上传，知识与对话难以按课程整理，针对某个细节的追问容易打断主线，习题也难以集中保存和打印。项目围绕这些具体需求，探索课件管理、知识检索、分支问答与做题本的实现。欢迎通过 [Issue](https://github.com/shuimqy/LearnFlow/issues) 分享使用体验、提出建议，或通过 Pull Request 参与开发。
+
+LearnFlow 将课程课件、知识库、问答记录和做题本按课程组织。支持免登录的单机模式，也支持按账号隔离的多用户模式。
 
 ![课程工作台：上传课件，进入课程问答、知识库或做题本](docs/images/course-workspace.png)
 
-<p align="center"><sub>实际界面 · 多用户模式 · 截图使用测试数据</sub></p>
+<p align="center"><sub>实际界面</sub></p>
 
 ## 功能
 
-| 功能       | 当前支持                                                                            |
-| ---------- | ----------------------------------------------------------------------------------- |
-| 课件管理   | 按课程上传 PDF、查看原文件、跟踪处理进度、重试失败任务                              |
-| 知识提取   | 逐页识别知识点、公式、例题和习题，保留原文与页码引用                                |
-| 知识修订   | Markdown 与 LaTeX 渲染、修订历史、归档与恢复；模型处理修改建议并返回意见和执行结果  |
-| 课程问答   | 按需检索课程知识、查看引用、发送图片、保留多轮记录；支持一级分支和选中文字追问      |
-| 原题做题本 | 合并同一课程的多个课件选题，按章节或页码限定范围，自动整理与去重，编辑后导出 A4 PDF |
-| 模型配置   | 自定义 LLM 与 Embedding，测试连接；更换向量模型时先建立新索引，完成后切换           |
+| 功能       | 当前支持                                                                             |
+| ---------- | ------------------------------------------------------------------------------------ |
+| 课件管理   | 按课程上传 PDF、查看原文件、跟踪处理进度、重试失败任务                               |
+| 知识提取   | 逐页识别知识点、公式、例题和习题，保留原文与页码引用                                 |
+| 知识修订   | Markdown 与 LaTeX 渲染、修订历史、归档与恢复；模型处理修改建议并返回意见和执行结果   |
+| 课程问答   | 按需检索课程知识、查看引用、发送图片，保存多轮对话记录                               |
+| 分支问答   | 从某条回答或选中文字发起独立追问，选择继承的上下文，在分支中继续讨论并随时返回主对话 |
+| 原题做题本 | 合并同一课程的多个课件选题，按章节或页码限定范围，自动整理与去重，编辑后导出 A4 PDF  |
+| 模型配置   | 自定义 LLM 与 Embedding，测试连接；更换向量模型时先建立新索引，完成后切换            |
+
+### 分支问答
+
+阅读回答时，可以点击下方的 **分支提问**，也可以选中某个定义、公式或推导步骤，点击 **针对选中内容提问**。分支在右侧面板打开，可连续追问、查看引用，关闭后仍可从原回答下重新打开。
+
+创建分支时可选择上下文范围：**围绕当前回答**、**包含更多前文**，或 **仅选中片段和原问题**。分支沿用创建时的上下文，后续讨论单独保存，主对话的新消息不会自动带入已有分支。当前支持从主对话创建一级分支。
 
 <details>
 <summary>查看知识库界面</summary>
 
 ![课程知识库：知识正文、原文引用、修订记录与修改建议](docs/images/course-knowledge.png)
 
-截图使用测试数据。知识正文与原文引用分别保存，修订会同步更新检索内容。
+知识正文与原文引用分别保存，修订会同步更新检索内容。
 
 </details>
 
@@ -43,7 +56,7 @@ LearnFlow 将课程课件、知识库、问答记录和做题本按课程组织�
 
 ## 快速开始
 
-当前面向 **Windows**，从源码启动。独立安装包及单机版、多用户版 Release 附件尚未发布。
+支持 **Windows**，按以下步骤从源码启动。
 
 ### 1. 准备环境
 
@@ -53,7 +66,7 @@ LearnFlow 将课程课件、知识库、问答记录和做题本按课程组织�
 | [uv](https://docs.astral.sh/uv/getting-started/installation/) | 管理 Python 环境和依赖，项目使用 Python 3.13 |
 | Microsoft Edge                                                | 用于本机 PDF 导出和浏览器测试                |
 
-首次启动需要联网下载依赖及数据库运行文件。Python 3.13 可由 uv 自动准备，无需预先激活虚拟环境或安装 Docker。
+首次启动需要联网下载依赖及数据库运行文件。Python 3.13 可由 uv 自动准备。
 
 ### 2. 获取项目并启动
 
@@ -65,8 +78,8 @@ cd LearnFlow
 
 也可以下载仓库源码 ZIP，解压后双击 `start-personal.bat`。
 
-启动脚本会同步前后端依赖，准备项目本地 PostgreSQL + pgvector 和 Redis，执行数据库迁移，再启动前端、后端及任务执行器。
-就绪后自动打开 <http://127.0.0.1:3000>。请保持启动窗口打开；停止时双击 `stop.bat`。
+首次启动会安装依赖并初始化 PostgreSQL + pgvector 和 Redis，就绪后自动打开 <http://127.0.0.1:3000>。
+请保持启动窗口打开；停止时双击 `stop.bat`。
 
 ### 3. 配置模型并上传课件
 
@@ -94,7 +107,7 @@ APP_MODE=multiuser
 ```
 
 改为 `APP_MODE=personal` 后重启，即可让 `start.bat` 默认进入单机模式。
-两个专用入口仅覆盖本次运行的模式，不修改 `.env`，也不需要切换源码或重新构建。
+`start-personal.bat` 和 `start-multiuser.bat` 直接指定本次运行的模式，优先于 `.env` 配置。
 
 ## 模型设置
 
@@ -128,7 +141,6 @@ LLM 用于课件识别、问答和修改建议处理；Embedding 将知识文本
 | `.local/logs/`                | 启动与服务日志                                    |
 
 自定义 API Key 加密保存在数据库中。备份数据库时应同时备份课件和加密主密钥，具体见 [凭据保存与备份](docs/account-settings.md)。
-上述本机数据、密钥、缓存及构建产物均由 Git 忽略规则排除。
 
 ## 开发
 
@@ -178,7 +190,7 @@ LearnFlow/
 └── stop.bat
 ```
 
-前后端保留在同一仓库，分别维护源码、依赖和测试。详细边界见 [架构说明](docs/architecture.md)。
+目录职责和模块边界见 [架构说明](docs/architecture.md)。
 
 </details>
 
@@ -201,7 +213,7 @@ npm.cmd --prefix frontend run test:e2e:personal
 
 后端测试需要 PostgreSQL + pgvector，`TEST_DATABASE_URL` 必须指向库名以 `_test` 结尾的独立测试库，每个用例使用独立 schema。
 两种模式的浏览器测试使用独立数据库和 3100、8001 端口，需依次执行。模型测试使用固定响应，不需要真实 API Key。
-当前 CI 只验证 Windows。
+GitHub Actions 在 Windows 上运行自动检查。
 
 </details>
 
