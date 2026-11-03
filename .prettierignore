@@ -1,0 +1,12 @@
+.git/
+.local/
+.venv/
+storage/
+node_modules/
+.next/
+.next-e2e/
+playwright-report/
+test-results/
+uv.lock
+package-lock.json
+frontend/next-env.d.ts

@@ -1,0 +1,88 @@
+.chapter-organizer {
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 14px 0;
+  background: var(--surface);
+}
+.chapter-organizer > summary {
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chapter-organizer label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.chapter-organizer input,
+.chapter-organizer select {
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: white;
+  color: var(--ink);
+  width: 100%;
+}
+.chapter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin: 16px 0;
+}
+.chapter-actions > label {
+  flex: 1;
+  min-width: 200px;
+}
+.chapter-edit-list {
+  margin-top: 16px;
+}
+.chapter-edit-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 85px 85px 32px;
+  align-items: end;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.chapter-counts {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 12px;
+}
+.chapter-counts a {
+  text-decoration: underline;
+}
+.chapter-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 14px 0;
+}
+.chapter-warnings {
+  color: #946322;
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 10px 0;
+}
+.chapter-empty {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+  padding: 16px 0;
+}
+@media (max-width: 700px) {
+  .chapter-organizer {
+    padding: 14px;
+  }
+  .chapter-edit-row {
+    grid-template-columns: minmax(0, 1fr) 65px 65px 28px;
+    gap: 6px;
+  }
+}

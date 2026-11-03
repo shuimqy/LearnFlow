@@ -1,0 +1,22 @@
+.knowledge-chapter-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  min-width: 0;
+}
+.knowledge-chapter-filter select {
+  max-width: 270px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: white;
+  color: var(--ink);
+  min-width: 0;
+}
+@media (max-width: 700px) {
+  .knowledge-chapter-filter {
+    flex-basis: 100%;
+  }
+}
