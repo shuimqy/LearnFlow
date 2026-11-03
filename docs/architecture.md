@@ -129,7 +129,7 @@ Windows 使用 Edge；同一进程限制并发和超时，不公开保存导出�
 - 浏览器用例位于 `frontend/tests/`；`scripts/test-backend.mjs` 启动 `backend/tests/browser_server.py`，使用独立测试库和端口。
 - GitHub Actions 仅使用 Windows，检查后端测试与格式、前端格式与构建、服务监护进程及单机浏览器流程。多用户浏览器回归在本机执行。
 
-完整检查命令见 [README](../README.md#开发检查)。
+完整检查命令见 [README 的开发说明](../README.md#开发)。
 
 ## 本机数据库
 
