@@ -73,10 +73,10 @@ LearnFlow 将课程课件、知识库、问答记录和做题本按课程组织�
 ```powershell
 git clone https://github.com/shuimqy/LearnFlow.git
 cd LearnFlow
-.\start-personal.bat
+.\start.bat
 ```
 
-也可以下载仓库源码 ZIP，解压后双击 `start-personal.bat`。
+也可以下载仓库源码 ZIP，解压后双击 `start.bat`。
 
 首次启动会安装依赖并初始化 PostgreSQL + pgvector 和 Redis，就绪后自动打开 <http://127.0.0.1:3000>。
 请保持启动窗口打开；停止时双击 `stop.bat`。
@@ -90,23 +90,22 @@ cd LearnFlow
 
 ## 运行模式
 
-|          | 单机模式             | 多用户模式                             |
-| -------- | -------------------- | -------------------------------------- |
-| 启动入口 | `start-personal.bat` | `start-multiuser.bat`                  |
-| 进入方式 | 免注册、免登录       | 注册或登录                             |
-| 数据归属 | 固定的本地工作空间   | 按账号隔离                             |
-| 模型设置 | 本机工作空间共用     | 每个账号单独配置                       |
-| 使用范围 | 仅允许本机访问       | 保留账号认证；启动脚本默认也只监听本机 |
+|          | 单机模式                                   | 多用户模式                             |
+| -------- | ------------------------------------------ | -------------------------------------- |
+| 启动入口 | `start.bat`（默认）或 `start-personal.bat` | `start-multiuser.bat`                  |
+| 进入方式 | 免注册、免登录                             | 注册或登录                             |
+| 数据归属 | 固定的本地工作空间                         | 按账号隔离                             |
+| 模型设置 | 本机工作空间共用                           | 每个账号单独配置                       |
+| 使用范围 | 仅允许本机访问                             | 保留账号认证；启动脚本默认也只监听本机 |
 
 **切换方式：先运行 `stop.bat`，再运行另一种模式的启动脚本。** 切换不会删除数据，已有账号的课程不会自动导入单机空间。
 
-普通 `start.bat` 读取 `.env` 中的默认模式，未设置时使用多用户模式：
+`start.bat` 默认启动免登录的单机模式。要让它默认进入多用户模式，在 `.env` 中设置：
 
 ```dotenv
 APP_MODE=multiuser
 ```
 
-改为 `APP_MODE=personal` 后重启，即可让 `start.bat` 默认进入单机模式。
 `start-personal.bat` 和 `start-multiuser.bat` 直接指定本次运行的模式，优先于 `.env` 配置。
 
 ## 模型设置
@@ -217,7 +216,7 @@ GitHub Actions 在 Windows 上运行自动检查。
 
 </details>
 
-手动启动、Docker 数据库、数据库维护与配置说明见 [本地开发](docs/development.md)。
+手动启动、数据库维护与配置说明见 [本地开发](docs/development.md)。
 后端接口文档位于 <http://127.0.0.1:8000/docs>，前后端日志位于 `.local/logs/`。
 
 ## 文档

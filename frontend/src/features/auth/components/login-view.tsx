@@ -51,9 +51,7 @@ export default function LoginPage() {
             <span className="brand-mark">
               <Layers2 size={21} strokeWidth={1.8} />
             </span>
-            <span>
-              LearnFlow<span className="brand-period">.</span>
-            </span>
+            <span>LearnFlow</span>
           </div>
           <h1>{register ? "创建账户" : "登录"}</h1>
           <form className="form-stack auth-form" onSubmit={submit}>
@@ -115,7 +113,6 @@ export default function LoginPage() {
               {register ? "直接登录" : "创建账户"}
             </button>
           </p>
-          <p className="auth-privacy">课程资料保存在你的个人空间，仅本人可访问。</p>
         </div>
       </section>
     </main>

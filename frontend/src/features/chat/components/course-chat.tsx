@@ -547,7 +547,7 @@ export default function CourseChat({
                   </div>
                 ))
               ) : (
-                <p>这里会保存这门课的问答记录。</p>
+                <p>暂无对话</p>
               )}
             </div>
             {index && (
@@ -589,7 +589,6 @@ export default function CourseChat({
               <div className="chat-empty">
                 <MessageSquare size={30} strokeWidth={1.4} />
                 <h2>暂无消息</h2>
-                <p>可以询问定义、公式的适用条件，或课件中某道例题的解题思路。</p>
               </div>
             ) : null}
             {messages[0]?.sequence > 1 && (
@@ -796,7 +795,7 @@ export default function CourseChat({
               maxLength={2000}
               value={draft}
               disabled={sending || generating || awaiting}
-              placeholder="输入问题，Shift + Enter 换行"
+              placeholder="输入问题"
               onChange={(event) => setDraft(event.target.value)}
               onPaste={(event) => {
                 const files = Array.from(event.clipboardData.items)
@@ -841,9 +840,7 @@ export default function CourseChat({
                 发送
               </button>
             </div>
-            <p className="chat-composer-hint">
-              Enter 发送 · Shift + Enter 换行 · 可粘贴图片 · 回答可展开引用核对来源
-            </p>
+            <p className="chat-composer-hint">Enter 发送 · Shift + Enter 换行 · 可粘贴图片</p>
           </form>
         </section>
       </div>

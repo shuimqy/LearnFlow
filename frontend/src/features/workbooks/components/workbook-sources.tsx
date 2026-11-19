@@ -36,7 +36,7 @@ export function WorkbookSources({
         </span>
       </div>
       <p className="workbook-note">
-        可将多份课件的题目合成一本。下面的范围同时用于手动选题和自动整理，已加入本册的题目会保留。
+        所选范围同时用于手动选题和自动整理。修改范围会保留已加入本册的题目。
       </p>
       <fieldset disabled={disabled}>
         <div className="workbook-source-actions">

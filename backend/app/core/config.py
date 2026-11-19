@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[3]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env", extra="ignore")
 
-    app_mode: Literal["personal", "multiuser"] = "multiuser"
+    app_mode: Literal["personal", "multiuser"] = "personal"
     database_url: str = "postgresql+psycopg://learnflow:learnflow_local@127.0.0.1:5432/learnflow"
     test_database_url: str | None = None
     manage_local_postgres: bool = False

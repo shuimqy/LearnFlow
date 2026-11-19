@@ -257,13 +257,7 @@ export default function KnowledgeWorkspace() {
         返回课程课件
       </Link>
       <div className="page-heading knowledge-page-heading">
-        <div>
-          <div className="eyebrow">{course?.name}</div>
-          <h1>
-            课程知识库<span className="heading-dot">.</span>
-          </h1>
-          <p>整理、修订和查找这门课的知识。内容仅在当前课程内检索。</p>
-        </div>
+        <h1>课程知识库</h1>
         <div className="knowledge-heading-actions">
           <Link href={`/courses/${id}/chat`} className="button secondary">
             <MessageSquare size={15} />
@@ -384,8 +378,7 @@ export default function KnowledgeWorkspace() {
               <div className="knowledge-detail-header">
                 <div>
                   <span className="small-label">
-                    {selected.status === "active" ? "课程知识" : "已归档"} / 第 {selected.version}{" "}
-                    版
+                    {selected.status === "archived" && "已归档 · "}第 {selected.version} 版
                   </span>
                   <h2>{selected.title}</h2>
                 </div>
@@ -572,7 +565,6 @@ export default function KnowledgeWorkspace() {
           )}
         </div>
       )}
-      <p className="knowledge-scope-note">列表支持关键词查找，自然语言提问可进入课程问答。</p>
       {form && (
         <KnowledgeForm
           courseId={id}

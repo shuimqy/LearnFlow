@@ -104,9 +104,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
           <span className="brand-mark">
             <Layers2 size={21} strokeWidth={1.8} />
           </span>
-          <span>
-            LearnFlow<span className="brand-period">.</span>
-          </span>
+          <span>LearnFlow</span>
         </Link>
         <button
           className="icon-button mobile-close"
@@ -115,12 +113,10 @@ function ShellContent({ children }: { children: React.ReactNode }) {
         >
           <X size={20} />
         </button>
-        <div className="workspace-label">个人工作空间</div>
         <nav className="main-nav" aria-label="工作空间导航">
           <Link href="/" className={`nav-link ${path === "/" || course ? "active" : ""}`}>
             <FolderClosed size={18} />
             <span>我的课程</span>
-            <span className="nav-count">{courses.length}</span>
           </Link>
           <Link href="/tasks" className={`nav-link ${path === "/tasks" ? "active" : ""}`}>
             <History size={18} />
@@ -148,7 +144,6 @@ function ShellContent({ children }: { children: React.ReactNode }) {
               <span>{item.name}</span>
             </Link>
           ))}
-          {!courses.length && <p className="sidebar-empty">创建课程后会显示在这里</p>}
         </nav>
         <div className="sidebar-bottom">
           {personal ? (
@@ -160,7 +155,6 @@ function ShellContent({ children }: { children: React.ReactNode }) {
                 <span className="avatar">{user?.name.slice(0, 1)}</span>
                 <Link href="/settings" className="user-copy" aria-label="打开账号设置">
                   <strong>{user?.name}</strong>
-                  <span>个人空间</span>
                 </Link>
                 <button
                   className="icon-button"
@@ -197,8 +191,6 @@ function ShellContent({ children }: { children: React.ReactNode }) {
             <Menu size={20} />
           </button>
           <div className="breadcrumbs">
-            <span>工作空间</span>
-            <ChevronRight size={13} />
             {course ? (
               <>
                 <Link href="/">我的课程</Link>
@@ -211,7 +203,6 @@ function ShellContent({ children }: { children: React.ReactNode }) {
               </span>
             )}
           </div>
-          <span className="topbar-link">课程工作台</span>
         </header>
         <main className={`main-content${isChat ? " chat-workspace-content" : ""}`}>{children}</main>
       </div>

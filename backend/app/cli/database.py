@@ -65,7 +65,9 @@ def create_env():
 
 def install_runtime():
     if sys.platform != "win32":
-        raise RuntimeError("Use Docker Compose or an existing PostgreSQL server on this platform.")
+        raise RuntimeError(
+            "Managed PostgreSQL is supported on Windows. Configure an existing server."
+        )
     if (BIN / "postgres.exe").is_file() and (RUNTIME / "Library" / "lib" / "vector.dll").is_file():
         return
     POSTGRES_HOME.mkdir(parents=True, exist_ok=True)

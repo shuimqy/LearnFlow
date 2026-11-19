@@ -1,17 +1,11 @@
 "use client";
 
 import { FormEvent, useRef, useState } from "react";
-import { Check, FileText, LoaderCircle, UploadCloud, X } from "lucide-react";
+import { FileText, LoaderCircle, UploadCloud, X } from "lucide-react";
 import { errorMessage } from "@/lib/http";
 import { formatBytes } from "@/lib/format";
 import { uploadPdf } from "@/features/documents/api";
 import { Modal, Notice } from "@/components/ui";
-
-const modes = [
-  { value: "original", title: "提取原题", description: "保留课件已有的习题" },
-  { value: "generated", title: "生成新题", description: "根据知识点生成习题" },
-  { value: "both", title: "两者都要", description: "同时保留原题和新题" },
-];
 
 export function UploadForm({
   courseId,
@@ -24,7 +18,6 @@ export function UploadForm({
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [mode, setMode] = useState("both");
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -54,7 +47,7 @@ export function UploadForm({
     setError("");
     setProgress(0);
     try {
-      await uploadPdf(courseId, file, mode, setProgress);
+      await uploadPdf(courseId, file, setProgress);
       await onUploaded();
     } catch (err) {
       setError(errorMessage(err));
@@ -122,29 +115,6 @@ export function UploadForm({
             <span>PDF 格式，单个文件不超过 25 MB</span>
           </button>
         )}
-        <fieldset className="exercise-field" disabled={busy}>
-          <legend>后续习题整理方式</legend>
-          <p className="field-hint">先保存偏好，习题整理开放后使用。</p>
-          <div className="exercise-options">
-            {modes.map((item) => (
-              <label
-                key={item.value}
-                className={`exercise-option ${mode === item.value ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="exercise-mode"
-                  value={item.value}
-                  checked={mode === item.value}
-                  onChange={() => setMode(item.value)}
-                />
-                <span className="radio-mark">{mode === item.value && <Check size={11} />}</span>
-                <strong>{item.title}</strong>
-                <span>{item.description}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
         {busy && (
           <div className="upload-progress" role="status">
             <div>

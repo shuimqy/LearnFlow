@@ -30,15 +30,13 @@ export default function CoursesPage() {
   return (
     <>
       <div className="page-heading">
-        <div>
-          <h1>
-            我的课程<span className="heading-dot">.</span>
-          </h1>
-        </div>
-        <button className="button primary" onClick={() => setCreateOpen(true)}>
-          <Plus size={17} />
-          新建课程
-        </button>
+        <h1>我的课程</h1>
+        {courses.length > 0 && (
+          <button className="button primary" onClick={() => setCreateOpen(true)}>
+            <Plus size={17} />
+            新建课程
+          </button>
+        )}
       </div>
       <div className="library-toolbar">
         <div className="library-tab">
@@ -90,16 +88,6 @@ export default function CoursesPage() {
       ) : courses.length === 0 ? (
         <>
           <section className="library-empty">
-            <div className="paper-stack" aria-hidden="true">
-              <div className="paper-back" />
-              <div className="paper-front">
-                <BookOpen size={31} strokeWidth={1.2} />
-                <span />
-                <span />
-                <span />
-              </div>
-              <span className="paper-pin">01</span>
-            </div>
             <div className="empty-copy">
               <h2>暂无课程</h2>
               <button className="button primary" onClick={() => setCreateOpen(true)}>
@@ -111,31 +99,24 @@ export default function CoursesPage() {
         </>
       ) : (
         <>
-          <div className="results-caption">
-            {query
-              ? `找到 ${visible.length} 门课程`
-              : `共 ${courses.length} 门课程 · ${courses.reduce((total, item) => total + item.document_count, 0)} 份课件`}
-          </div>
+          {query.trim() && <div className="results-caption">找到 {visible.length} 门课程</div>}
           {visible.length === 0 ? (
             <div className="plain-empty">
               <Search size={25} />
               <h2>没有找到相关课程</h2>
-              <p>换个关键词，或清空搜索再看看。</p>
               <button className="button secondary" onClick={() => setQuery("")}>
                 清空搜索
               </button>
             </div>
           ) : (
             <div className={`course-grid ${view === "list" ? "course-list" : ""}`}>
-              {visible.map((course, index) => (
+              {visible.map((course) => (
                 <Link className="course-card" href={`/courses/${course.id}`} key={course.id}>
-                  <div className={`course-cover tint-${course.color}`}>
-                    <BookOpen size={34} strokeWidth={1.2} />
-                    <span className="cover-index">{String(index + 1).padStart(2, "0")}</span>
-                    <div className="cover-lines" aria-hidden="true" />
-                  </div>
                   <div className="course-card-body">
                     <div className="course-card-title">
+                      <span className={`course-card-icon tint-${course.color}`}>
+                        <BookOpen size={19} />
+                      </span>
                       <h2>{course.name}</h2>
                       <ArrowRight size={16} />
                     </div>
@@ -150,12 +131,6 @@ export default function CoursesPage() {
                   </div>
                 </Link>
               ))}
-              <button className="add-course-card" onClick={() => setCreateOpen(true)}>
-                <span>
-                  <Plus size={21} />
-                </span>
-                新建课程
-              </button>
             </div>
           )}
         </>

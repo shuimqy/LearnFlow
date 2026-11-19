@@ -66,7 +66,7 @@
   margin: 14px 0;
 }
 .chapter-warnings {
-  color: #946322;
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.8;
   margin: 10px 0;

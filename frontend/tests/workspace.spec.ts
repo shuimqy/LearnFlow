@@ -65,7 +65,6 @@ test("注册、课程管理、上传及删除形成完整流程", async ({ page 
   await page
     .getByLabel("选择 PDF 文件")
     .setInputFiles({ name: "第一章-向量.pdf", mimeType: "application/pdf", buffer: samplePdf() });
-  await page.getByText("提取原题", { exact: true }).click();
   await page.getByRole("button", { name: "上传课件", exact: true }).last().click();
   await expect(page.getByRole("link", { name: "第一章-向量.pdf" })).toBeVisible();
   await expect(page.getByRole("link", { name: "提取知识与例题" })).toBeVisible();

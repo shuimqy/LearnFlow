@@ -65,8 +65,7 @@ LearnFlow/
 ├── stop.bat
 ├── setup-postgres.bat
 ├── pyproject.toml              # uv workspace、开发依赖、Ruff 与 pytest
-├── uv.lock
-└── docker-compose.yml
+└── uv.lock
 ```
 
 ## 后端边界

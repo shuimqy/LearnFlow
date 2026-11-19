@@ -95,11 +95,7 @@ export function ChapterOrganizer({
     <details className="chapter-organizer" open={initiallyOpen}>
       <summary>章节与原题整理</summary>
       <p className="chapter-note">
-        章节用于按课件页码筛选题目和知识点。例如，把第 1–20
-        页命名为“第二章”，选题时选择它，就只整理这些页的题目。只整理整份课件时，可以跳过章节划分。
-      </p>
-      <p className="chapter-note">
-        “自动识别”从课件整理章节和题目标签；“添加章节”让你手动填写名称和页码，不会新增题目。自动识别会使用账号模型，重新识别会替换当前章节，已确认裁片保留。
+        可按章节筛选题目和知识点。重新识别会使用模型替换当前章节，已确认裁片会保留。
       </p>
       <div className="chapter-actions">
         {documents.length > 1 && (

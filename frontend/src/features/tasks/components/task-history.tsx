@@ -38,13 +38,7 @@ export default function TasksPage() {
   return (
     <>
       <div className="page-heading">
-        <div>
-          <div className="eyebrow">资料处理</div>
-          <h1>
-            处理记录<span className="heading-dot">.</span>
-          </h1>
-          <p>查看课件处理进度和失败记录。</p>
-        </div>
+        <h1>处理记录</h1>
         <button className="button secondary" disabled={loading} onClick={() => void load()}>
           <RefreshCw size={16} className={loading ? "spin" : ""} />
           刷新记录
@@ -62,10 +56,6 @@ export default function TasksPage() {
         </section>
       ) : (
         <>
-          <div className="inline-info task-info">
-            <Clock3 size={17} />
-            <p>上传后逐页识别知识、公式和原有题目，结果自动存入对应课程的知识库。</p>
-          </div>
           <div className="task-list">
             {tasks.map((task) => (
               <article className="task-row" key={task.id}>

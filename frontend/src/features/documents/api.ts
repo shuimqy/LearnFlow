@@ -3,7 +3,6 @@ import type { Document } from "./types";
 export function uploadPdf(
   courseId: string,
   file: File,
-  mode: string,
   onProgress: (value: number) => void,
 ): Promise<Document> {
   return new Promise((resolve, reject) => {
@@ -31,7 +30,7 @@ export function uploadPdf(
     };
     const form = new FormData();
     form.append("file", file);
-    form.append("exercise_mode", mode);
+    form.append("exercise_mode", "original");
     xhr.send(form);
   });
 }

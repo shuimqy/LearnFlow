@@ -9,7 +9,6 @@ import {
   BookOpen,
   Check,
   FileText,
-  Info,
   MessageSquare,
   Settings2,
   Trash2,
@@ -23,12 +22,6 @@ import { api, errorMessage } from "@/lib/http";
 import type { Course } from "@/features/courses/types";
 import type { Document } from "@/features/documents/types";
 import { formatBytes, formatDate } from "@/lib/format";
-
-const modeNames: Record<string, string> = {
-  both: "原题与新题",
-  original: "提取原题",
-  generated: "生成新题",
-};
 
 export default function CoursePage() {
   const { id } = useParams<{ id: string }>();
@@ -120,7 +113,6 @@ export default function CoursePage() {
           <BookOpen size={30} strokeWidth={1.3} />
         </span>
         <div>
-          <span className="eyebrow">课程资料库</span>
           <h1>{course.name}</h1>
           {course.description && <p>{course.description}</p>}
         </div>
@@ -130,7 +122,6 @@ export default function CoursePage() {
         </button>
       </div>
       <div className="course-summary">
-        <span>{documents.length} 份课件</span>
         <span>{documents.reduce((sum, document) => sum + document.page_count, 0)} 页资料</span>
         <span>创建于 {formatDate(course.created_at)}</span>
       </div>
@@ -168,7 +159,6 @@ export default function CoursePage() {
           <div className="document-table">
             <div className="document-table-head">
               <span>文件名称</span>
-              <span>整理偏好</span>
               <span>状态</span>
               <span>上传日期</span>
               <span />
@@ -190,7 +180,6 @@ export default function CoursePage() {
                     <Link href={`/courses/${id}/documents/${document.id}`}>课件详情与章节</Link>
                   </div>
                 </div>
-                <span className="document-mode">{modeNames[document.exercise_mode]}</span>
                 <Link
                   href={
                     document.task.status === "completed"
@@ -223,12 +212,6 @@ export default function CoursePage() {
               </div>
             ))}
           </div>
-          <div className="inline-info">
-            <Info size={16} />
-            <p>
-              上传后自动提取知识点、公式和课件原有题目并存入课程知识库。点击文件名查看原始 PDF。
-            </p>
-          </div>
         </>
       ) : (
         <section className="document-empty">
@@ -244,10 +227,6 @@ export default function CoursePage() {
         </section>
       )}
       <div className="course-danger-zone">
-        <div>
-          <strong>课程管理</strong>
-          <p>课程及其课件仅对你可见。</p>
-        </div>
         <button
           className="button danger-outline"
           onClick={() => {

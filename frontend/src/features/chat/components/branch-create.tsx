@@ -101,7 +101,7 @@ export function BranchCreate({
             ? "继承当前回答及之前最多 20 条消息；过长内容会截取。"
             : mode === "minimal"
               ? "适合只讨论一个定义、公式或步骤。"
-              : "继承当前回答及最近少量前文。每次提问仍会重新检索课程知识。"}
+              : "继承当前回答和最近几条消息。"}
         </p>
         {error && <Notice message={error} />}
         <div className="modal-actions">

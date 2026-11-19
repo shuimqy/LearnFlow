@@ -71,7 +71,7 @@
   width: 15px;
   height: 15px;
   flex-shrink: 0;
-  accent-color: var(--green);
+  accent-color: var(--accent);
 }
 .workbook-source-ranges {
   margin-top: 16px;
@@ -169,7 +169,7 @@
   min-height: 0;
   padding: 0;
   flex-shrink: 0;
-  accent-color: var(--green);
+  accent-color: var(--accent);
 }
 .assembly-chapters span {
   font-size: 11px;
@@ -232,13 +232,15 @@
 }
 .crop-box {
   position: absolute;
-  border: 2px solid #608a67;
-  background: #608a671a;
+  border: 2px solid var(--accent);
+  background: #0000001a;
+  box-shadow: 0 0 0 1px var(--surface);
   pointer-events: none;
 }
 .crop-box.figure {
-  border-color: #b58234;
-  background: #b582341a;
+  border-color: var(--muted);
+  border-style: dotted;
+  background: #ffffff2e;
 }
 .crop-box.active {
   border-style: dashed;
@@ -249,7 +251,7 @@
   top: 0;
   left: 0;
   background: #fffe;
-  color: #333;
+  color: var(--ink);
   line-height: 1.5;
   font-size: 11px;
   padding: 1px 3px;
@@ -337,9 +339,9 @@
 }
 .workbook-picker,
 .workbook-editor {
-  border: 1px solid var(--line, #e1e4df);
+  border: 1px solid var(--line, #e2e2e2);
   border-radius: 10px;
-  background: var(--surface, #fff);
+  background: var(--surface, var(--surface));
 }
 .workbook-picker {
   padding: 20px;
@@ -380,7 +382,7 @@
 .workbook-bar select {
   min-height: 40px;
   padding: 9px 10px;
-  border: 1px solid var(--line, #e1e4df);
+  border: 1px solid var(--line, #e2e2e2);
   border-radius: 6px;
   background: white;
   color: var(--ink);
@@ -388,7 +390,7 @@
 .workbook-target {
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px solid var(--line, #e1e4df);
+  border-top: 1px solid var(--line, #e2e2e2);
 }
 .workbook-result-count {
   margin: 18px 0 12px;
@@ -397,13 +399,13 @@
 }
 .workbook-candidate {
   padding: 14px;
-  border: 1px solid var(--line, #e1e4df);
+  border: 1px solid var(--line, #e2e2e2);
   border-radius: 7px;
   margin-bottom: 12px;
 }
 .workbook-candidate.is-selected {
-  border-color: #73947e;
-  background: #f7faf7;
+  border-color: var(--line-strong);
+  background: var(--surface);
 }
 .workbook-layout .workbook-pick-title {
   flex-direction: row;
@@ -416,7 +418,7 @@
   width: 15px;
   height: 15px;
   flex-shrink: 0;
-  accent-color: #436b51;
+  accent-color: var(--accent);
 }
 .workbook-source {
   color: var(--muted);
@@ -442,7 +444,7 @@
   overflow-x: auto;
 }
 .workbook-warnings {
-  color: #805b23;
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.7;
   margin: 10px 0 0;
@@ -497,7 +499,7 @@
   padding-bottom: 10px;
 }
 .workbook-group {
-  border-top: 1px solid var(--line, #e1e4df);
+  border-top: 1px solid var(--line, #e2e2e2);
   padding-top: 20px;
   margin-top: 20px;
 }
@@ -522,7 +524,7 @@
 }
 .workbook-selected {
   padding: 18px 0;
-  border-bottom: 1px solid var(--line, #e1e4df);
+  border-bottom: 1px solid var(--line, #e2e2e2);
 }
 .workbook-selected:last-child {
   border-bottom: 0;
@@ -568,8 +570,8 @@
 .workbook-footer {
   position: sticky;
   bottom: 0;
-  background: #fff;
-  border-top: 1px solid var(--line, #e1e4df);
+  background: var(--surface);
+  border-top: 1px solid var(--line, #e2e2e2);
   padding: 16px 20px;
   display: flex;
   align-items: center;

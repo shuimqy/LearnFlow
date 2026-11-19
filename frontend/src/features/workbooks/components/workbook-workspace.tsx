@@ -398,7 +398,6 @@ export default function WorkbookWorkspace() {
       <div className="page-heading workbook-heading">
         <div>
           <h1>课件做题本</h1>
-          <p>从课件原题中挑选，按章节或学习任务分组，整理后打印练习。</p>
         </div>
       </div>
       {error && <Notice message={error} />}
@@ -487,17 +486,12 @@ export default function WorkbookWorkspace() {
           else applyDraft(result);
         }}
       />
-      <p className="workbook-note">
-        可按已识别章节或页码选题。原题保真版使用已确认裁片；文字重排版附已确认的题图。题目和答案来自原始识别，请核对提示。
-      </p>
       <div className="workbook-layout">
         <section className="workbook-picker" aria-label="课件题目">
           <h2 id="workbook-picker" tabIndex={-1}>
             2. 手动选择原题
           </h2>
-          <p className="workbook-note">
-            当前使用上方所选课件和范围。勾选题目加入本册，也可以先用“按要求自动整理做题本”生成草稿。
-          </p>
+          <p className="workbook-note">勾选题目加入本册。</p>
           <form
             className="workbook-filters"
             onSubmit={(event) => {

@@ -98,15 +98,7 @@ export default function AccountSettings() {
   return (
     <>
       <div className="page-heading">
-        <div>
-          {!personal && <div className="eyebrow">个人账号</div>}
-          <h1>{personal ? "模型设置" : "账号设置"}</h1>
-          <p>
-            {personal
-              ? "模型设置对本机工作空间中的所有课程生效。"
-              : "管理基本资料与模型连接，设置对账号下所有课程生效。"}
-          </p>
-        </div>
+        <h1>{personal ? "模型设置" : "账号设置"}</h1>
         <button className="button secondary" onClick={() => void load()}>
           刷新设置
         </button>
@@ -116,10 +108,7 @@ export default function AccountSettings() {
           <section className="settings-section" aria-label="基本资料">
             <div className="settings-section-heading">
               <Settings2 size={18} />
-              <div>
-                <h2>基本资料</h2>
-                <p>邮箱用于登录，称呼会显示在工作空间中。</p>
-              </div>
+              <h2>基本资料</h2>
             </div>
             <form className="settings-fields" onSubmit={saveProfile}>
               <label>

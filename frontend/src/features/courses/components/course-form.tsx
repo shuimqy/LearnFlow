@@ -7,11 +7,11 @@ import type { Course, CourseColor } from "@/features/courses/types";
 import { Modal, Notice } from "@/components/ui";
 
 const colors: { value: CourseColor; label: string }[] = [
-  { value: "sage", label: "松绿" },
-  { value: "sand", label: "麦黄" },
-  { value: "blue", label: "雾蓝" },
-  { value: "rose", label: "陶红" },
-  { value: "lavender", label: "浅紫" },
+  { value: "sage", label: "雾白" },
+  { value: "sand", label: "浅灰" },
+  { value: "blue", label: "中灰" },
+  { value: "rose", label: "深灰" },
+  { value: "lavender", label: "炭黑" },
 ];
 
 export function CourseForm({
@@ -64,11 +64,10 @@ export function CourseForm({
             rows={3}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="记下这门课的内容或学习目标"
           />
         </label>
         <fieldset className="color-field">
-          <legend>课程颜色</legend>
+          <legend>课程标记</legend>
           <div className="color-options">
             {colors.map((item) => (
               <button

@@ -137,7 +137,6 @@ learning-assistant/
 │   └── tests/
 ├── frontend/
 ├── storage/
-├── docker-compose.yml
 └── README.md
 ```
 
@@ -546,8 +545,6 @@ Python 使用 uv；Windows 队列使用 Redis + RQ SpawnWorker 的项目适配�
 
 ### 部署
 
--   [ ] 编写 Dockerfile。
--   [ ] 编写 Docker Compose 部署配置。
 -   [ ] 部署 FastAPI 和前端。
 -   [ ] 部署 PostgreSQL 和 Redis。
 -   [ ] 配置文件存储目录。
@@ -611,6 +608,5 @@ PostgreSQL，数据库保存文件路径或对象存储 Key。
 -   [ ] 分支结束后支持丢弃、保存结论或确认合并摘要。
 -   [ ] 验证分支隔离、权限校验和持久化数据清理。
 -   [ ] 查看历史任务和问答记录。
--   [ ] 使用 Docker 部署完整应用。
 
 第一版以以上功能为完成标准。对话分支先实现一级分支、三种上下文策略和三种结束方式；复杂对话树、自动复习计划、知识图谱、错题本、学习进度分析和更多文档格式支持放到后续版本。

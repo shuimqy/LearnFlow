@@ -39,7 +39,7 @@ def install():
         "redis://localhost:6379/0",
         "redis://127.0.0.1:6379/0",
     }:
-        raise RuntimeError("Start your configured Redis server, or use docker compose up -d redis.")
+        raise RuntimeError("Start your configured Redis server and retry.")
     if executable():
         return
     REDIS_HOME.mkdir(parents=True, exist_ok=True)
