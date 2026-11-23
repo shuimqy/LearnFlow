@@ -425,6 +425,7 @@ async function main() {
     [
       path.join(frontend, "node_modules", "next", "dist", "bin", "next"),
       "dev",
+      "--webpack",
       "--hostname",
       "127.0.0.1",
       "--port",

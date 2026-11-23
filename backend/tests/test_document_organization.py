@@ -15,6 +15,7 @@ from pydantic import SecretStr
 from redis.exceptions import ConnectionError as RedisConnectionError
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
+from test_knowledge import create
 from test_workbooks import exercises as exercises  # noqa: PLC0414
 
 
@@ -55,11 +56,14 @@ def structured(client, course, exercises, db_engine):
 def test_chapters_associate_knowledge_exercises_and_manual_ranges(client, structured):
     course_id = structured["course"]["id"]
     chapter = structured["chapters"][0]
-    assert chapter["knowledge_count"] == chapter["exercise_count"] == 1
-    assert (
-        len(client.get(f"/api/courses/{course_id}/knowledge?chapter_id={chapter['id']}").json())
-        == 1
+    assert chapter["knowledge_count"] == 0 and chapter["exercise_count"] == 1
+    note = create(
+        client,
+        structured["course"],
+        sources=[{"document_id": structured["document"]["id"], "page_number": 1}],
     )
+    notes = client.get(f"/api/courses/{course_id}/knowledge?chapter_id={chapter['id']}").json()
+    assert [point["id"] for point in notes] == [note["id"]]
     assert (
         client.get(f"/api/courses/{course_id}/exercises?chapter_id={chapter['id']}").json()[
             "items"
@@ -70,6 +74,7 @@ def test_chapters_associate_knowledge_exercises_and_manual_ranges(client, struct
     update = {"expected_version": 1, "chapters": [{**chapter, "end_page": 2}]}
     response = client.put(path, json=update)
     assert response.status_code == 200 and response.json()["version"] == 2
+    assert response.json()["chapters"][0]["knowledge_count"] == 1
     assert response.json()["chapters"][0]["exercise_count"] == 2
     assert client.put(path, json=update).status_code == 409
     assert (

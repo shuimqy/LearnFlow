@@ -29,27 +29,26 @@ def save_pdf(upload: UploadFile) -> tuple[str, int, int, str]:
     path = storage_file(key)
     path.parent.mkdir(parents=True, exist_ok=True)
     size = 0
-    limit = get_settings().max_upload_mb * 1024 * 1024
     try:
         with path.open("xb") as target:
             while chunk := upload.file.read(1024 * 1024):
                 size += len(chunk)
-                if size > limit:
-                    raise HTTPException(413, f"文件不能超过 {get_settings().max_upload_mb} MB")
                 target.write(chunk)
         with path.open("rb") as source:
             if b"%PDF-" not in source.read(1024):
                 raise HTTPException(422, "文件内容不是有效的 PDF")
         try:
-            # 损坏 PDF 从文件打开时可能遗留句柄，Windows 下会阻止清理。
-            with pymupdf.open(stream=path.read_bytes(), filetype="pdf") as pdf:
+            with pymupdf.open(path) as pdf:
                 if pdf.needs_pass:
                     raise HTTPException(422, "请先移除 PDF 密码后再上传")
-                if not pdf.page_count:
-                    raise HTTPException(422, "PDF 中没有可读取的页面")
                 pages = pdf.page_count
-        except (pymupdf.FileDataError, pymupdf.EmptyFileError) as exc:
-            raise HTTPException(422, "PDF 已损坏或无法读取") from exc
+        except (pymupdf.FileDataError, pymupdf.EmptyFileError):
+            pages = None
+        # 在异常退出后释放 MuPDF 的文件句柄，Windows 上才能删除损坏的 PDF。
+        if pages is None:
+            raise HTTPException(422, "PDF 已损坏或无法读取")
+        if not pages:
+            raise HTTPException(422, "PDF 中没有可读取的页面")
     except Exception:
         path.unlink(missing_ok=True)
         raise

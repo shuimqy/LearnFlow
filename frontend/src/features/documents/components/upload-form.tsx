@@ -34,10 +34,6 @@ export function UploadForm({
       setError("请选择 PDF 格式的课件");
       return;
     }
-    if (next.size > 25 * 1024 * 1024) {
-      setError("单个文件不能超过 25 MB");
-      return;
-    }
     setFile(next);
   }
   async function submit(event: FormEvent) {
@@ -112,7 +108,6 @@ export function UploadForm({
           >
             <UploadCloud size={29} strokeWidth={1.4} />
             <strong>点击选择，或将课件拖到这里</strong>
-            <span>PDF 格式，单个文件不超过 25 MB</span>
           </button>
         )}
         {busy && (

@@ -367,6 +367,8 @@ def test_missing_example_answer_is_preserved_as_missing(
     monkeypatch.setattr(extraction, "infer_page", infer)
     document = upload(client, course, pdf_bytes).json()
     extraction.process_document(*queued(db_engine, document))
-    points = client.get(f"/api/courses/{course['id']}/knowledge").json()
-    example = next(point for point in points if point["title"] == "Example 1")
+    base = f"/api/courses/{course['id']}"
+    (item,) = client.get(base + "/exercises", params={"page_from": 1, "page_to": 1}).json()["items"]
+    assert item["kind"] == "exercise" and item["answer"] == ""
+    example = client.get(base + f"/knowledge/{item['knowledge_id']}").json()
     assert "课件未提供答案" in example["content"]

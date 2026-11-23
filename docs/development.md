@@ -126,7 +126,6 @@ uv run --all-packages alembic -c backend/alembic.ini upgrade head
 | `REDIS_URL` | `redis://localhost:6379/0` | RQ 队列连接 |
 | `ALLOWED_ORIGINS` | 3000、8000 端口的 localhost / 127.0.0.1 | JSON 数组，包含前端和交互式 API 文档来源 |
 | `COOKIE_SECURE` | `false` | HTTPS 环境设为 `true` |
-| `MAX_UPLOAD_MB` | `25` | 后端单文件大小限制，修改时需同步调整上传界面及前端代理限制 |
 | `SESSION_DAYS` | `14` | 登录有效期 |
 
 前端默认转发到 `http://127.0.0.1:8000`。修改 `frontend/.env.local` 中的

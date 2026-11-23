@@ -2,6 +2,7 @@ import logging
 import math
 import re
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.orm import defer, selectinload
@@ -12,8 +13,12 @@ from app.services.account_models import default_config, fingerprint, profile_for
 from app.services.embeddings import EmbeddingClient
 from app.services.model_api import ModelAPIError, model_failure_message
 from app.services.query_embeddings import query_embedding
+from app.services.retrieval_notation import notation_score, question_notation
 from app.services.sources import source_snapshot
 from app.services.vector_index import index_status
+
+if TYPE_CHECKING:
+    from app.services.chat_pdf import ReferencedPageImage
 
 logger = logging.getLogger("learnflow.retrieval")
 
@@ -24,6 +29,9 @@ class RetrievedContext:
     mode: str
     warnings: list[str]
     images: list[bytes] | None = None
+    pdf_page_limit: int = 0
+    pdf_page_images: tuple["ReferencedPageImage", ...] = ()
+    pdf_read_attempted: bool = False
 
 
 def lexical_score(text: str, question: str) -> int:
@@ -35,7 +43,9 @@ def lexical_score(text: str, question: str) -> int:
     return sum(min(len(term), 12) for term in terms if term in value)
 
 
-def retrieve_course(db, course_id, user_id, question, *, limit=6):
+def retrieve_course(db, course_id, user_id, question, *, limit=6, original_question=None):
+    if limit < 1:
+        return RetrievedContext([], "empty", [])
     settings = resolve_settings(db, user_id)
     profile = profile_for(db, user_id, "embedding")
     statement = (
@@ -128,43 +138,71 @@ def retrieve_course(db, course_id, user_id, question, *, limit=6):
     if status["ready"] < status["total"] and vector_rows:
         warnings.append("部分知识仍在建立索引，本次同时使用关键词查找。")
     # 第一版知识规模有限，关键词补查只在当前课程的有效版本中进行。
-    lexical = [
-        (chunk, point, lexical_score(chunk.text, question))
-        for chunk, point in db.execute(statement)
-    ]
-    lexical = sorted((row for row in lexical if row[2] > 0), key=lambda row: (-row[2], row[0].id))[
-        :24
-    ]
+    rules, operators = question_notation(original_question or question)
+    if original_question and original_question != question and not (rules or operators):
+        rules, operators = question_notation(question)
+    lexical, exact = [], {}
+    no_match = (0, 0)
+    for chunk, point in db.execute(statement):
+        if score := lexical_score(chunk.text, question):
+            lexical.append((chunk, point, score))
+        if rules or operators:
+            match = notation_score(chunk.text, rules, operators)
+            if match != no_match:
+                exact[chunk.id] = (chunk, point, match)
+    lexical = sorted(lexical, key=lambda row: (-row[2], row[0].id))[:24]
     fused = {}
     for rows in [vector_rows, lexical]:
         for position, (chunk, point, _) in enumerate(rows):
             entry = fused.setdefault(chunk.id, [chunk, point, 0.0])
             entry[2] += 1 / (30 + position)
-    items, per_point = [], {}
+    selected, per_point = [], {}
     for chunk, point, _ in sorted(fused.values(), key=lambda row: -row[2]):
         if per_point.get(point.id, 0) >= 2:
             continue
         per_point[point.id] = per_point.get(point.id, 0) + 1
-        items.append(
-            {
-                "key": f"K{len(items) + 1}",
-                "chunk_id": chunk.id,
-                "knowledge_id": point.id,
-                "version": point.version,
-                "title": point.title,
-                "text": chunk.text,
-                "sources": source_snapshot(point.sources),
-            }
-        )
-        if len(items) == limit:
+        selected.append((chunk, point))
+        if len(selected) == limit:
             break
+    if exact:
+        fused_scores = {chunk_id: row[2] for chunk_id, row in fused.items()}
+        chunk, point, best = max(
+            exact.values(),
+            key=lambda row: (row[2], fused_scores.get(row[0].id, 0), row[0].id),
+        )
+        selected_score = max(
+            (exact[picked.id][2] for picked, _ in selected if picked.id in exact),
+            default=no_match,
+        )
+        if best > selected_score:
+            # 引用同一知识点的片段仍受数量限制。
+            if per_point.get(point.id, 0) >= 2:
+                index = max(i for i, (_, picked) in enumerate(selected) if picked.id == point.id)
+                selected[index] = (chunk, point)
+            elif len(selected) < limit:
+                selected.append((chunk, point))
+            else:
+                selected[-1] = (chunk, point)
+    items = [
+        {
+            "key": f"K{rank}",
+            "chunk_id": chunk.id,
+            "knowledge_id": point.id,
+            "version": point.version,
+            "title": point.title,
+            "text": chunk.text,
+            "sources": source_snapshot(point.sources),
+        }
+        for rank, (chunk, point) in enumerate(selected, start=1)
+    ]
+    has_text_match = bool(lexical or exact)
     mode = (
         "hybrid"
-        if vector_rows and lexical
+        if vector_rows and has_text_match
         else "semantic"
         if vector_rows
         else "text"
-        if lexical
+        if has_text_match
         else "empty"
     )
     return RetrievedContext(items, mode, warnings)

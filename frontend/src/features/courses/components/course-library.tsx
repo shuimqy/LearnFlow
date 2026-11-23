@@ -1,16 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { ArrowRight, BookOpen, FileText, LayoutGrid, List, Plus, Search } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  FileText,
+  LayoutGrid,
+  List,
+  Plus,
+  Search,
+  Upload,
+} from "lucide-react";
 import { CourseForm } from "@/features/courses/components/course-form";
+import { CourseImportForm } from "@/features/courses/components/course-import-form";
 import { useCourses } from "@/features/courses/course-provider";
 import { Notice, Spinner } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 
 export default function CoursesPage() {
+  const router = useRouter();
   const { courses, loading, error, refresh } = useCourses();
   const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("recent");
   const [view, setView] = useState("grid");
@@ -29,14 +42,20 @@ export default function CoursesPage() {
   );
   return (
     <>
-      <div className="page-heading">
+      <div className="page-heading library-heading">
         <h1>我的课程</h1>
-        {courses.length > 0 && (
-          <button className="button primary" onClick={() => setCreateOpen(true)}>
-            <Plus size={17} />
-            新建课程
+        <div className="library-heading-actions">
+          <button className="button secondary" onClick={() => setImportOpen(true)}>
+            <Upload size={17} />
+            导入课程
           </button>
-        )}
+          {courses.length > 0 && (
+            <button className="button primary" onClick={() => setCreateOpen(true)}>
+              <Plus size={17} />
+              新建课程
+            </button>
+          )}
+        </div>
       </div>
       <div className="library-toolbar">
         <div className="library-tab">
@@ -141,6 +160,16 @@ export default function CoursesPage() {
           onSaved={async () => {
             await refresh();
             setCreateOpen(false);
+          }}
+        />
+      )}
+      {importOpen && (
+        <CourseImportForm
+          onClose={() => setImportOpen(false)}
+          onImported={async (course) => {
+            await refresh();
+            setImportOpen(false);
+            router.push(`/courses/${course.id}`);
           }}
         />
       )}

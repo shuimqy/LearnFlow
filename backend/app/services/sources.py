@@ -24,7 +24,7 @@ def extract_page(db: Session, document: Document, page_number: int) -> DocumentP
     if not path.is_file():
         raise HTTPException(404, "原始文件已丢失，无法读取来源")
     try:
-        with pymupdf.open(stream=path.read_bytes(), filetype="pdf") as pdf:
+        with pymupdf.open(path) as pdf:
             page = pdf[page_number - 1]
             text = page.get_text(sort=True)
             status = "extracted" if text.strip() else "needs_ocr" if page.get_images() else "empty"

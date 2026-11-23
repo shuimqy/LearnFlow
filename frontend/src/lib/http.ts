@@ -40,3 +40,33 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
 export function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "操作失败，请重试";
 }
+
+export function uploadForm<T>(
+  path: string,
+  form: FormData,
+  onProgress: (value: number) => void,
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `/api${path}`);
+    xhr.responseType = "json";
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
+    };
+    xhr.onerror = () => reject(new ApiError(0, "上传中断，请检查网络后重试"));
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300 && xhr.response) {
+        resolve(xhr.response);
+        return;
+      }
+      if (xhr.status === 401) window.location.assign("/login");
+      reject(
+        new ApiError(
+          xhr.status,
+          typeof xhr.response?.detail === "string" ? xhr.response.detail : "上传失败，请稍后重试",
+        ),
+      );
+    };
+    xhr.send(form);
+  });
+}

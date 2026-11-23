@@ -13,7 +13,7 @@ from app.services.model_api import ModelAPIError
 from sqlalchemy.orm import Session
 from test_chat import answer_fixture, ask, thread
 from test_chat_branches import fork
-from test_knowledge import create, payload
+from test_knowledge import create, payload, upload
 
 
 def response(parsed, input_tokens=10, output_tokens=5):
@@ -101,14 +101,69 @@ def test_rewritten_query_is_used_for_retrieval(client, course, monkeypatch):
     captured = []
     from app.services.retrieval import retrieve_course
 
-    def retrieve(db, course_id, user_id, query):
+    def retrieve(db, course_id, user_id, query, **options):
         captured.append(query)
-        return retrieve_course(db, course_id, user_id, query)
+        return retrieve_course(db, course_id, user_id, query, **options)
 
     monkeypatch.setattr("app.services.chat_graph.retrieve_course", retrieve)
     monkeypatch.setattr(chat, "generate_answer", answer_fixture)
     assert ask(client, path, "它是怎么判断的？").status_code == 200
     assert captured == ["线性无关的定义和系数条件"]
+
+
+@pytest.mark.parametrize(
+    ("question", "content", "unrelated"),
+    [
+        (
+            "E22 是什么？",
+            r"| 输出律 | $(P\land Q)\to R\iff P\to(Q\to R)$ | $E_{22}$ |",
+            r"| 另一条规则 | $P\iff Q$ | $E_{220}$ |",
+        ),
+        (
+            r"\downarrow 的含义是什么？",
+            r"$P ↓ Q \Leftrightarrow \neg(P\lor Q)$",
+            r"$P \uparrow Q \Leftrightarrow \neg(P\land Q)$",
+        ),
+    ],
+)
+def test_explicit_notation_survives_rewrite_and_keeps_source(
+    client, course, pdf_bytes, monkeypatch, question, content, unrelated
+):
+    document = upload(client, course, pdf_bytes)
+    point = create(
+        client,
+        course,
+        title="教材规则",
+        content=content,
+        sources=[{"document_id": document["id"], "page_number": 2}],
+    )
+    create(client, course, content=unrelated)
+    for index in range(6):
+        create(client, course, title=f"推导 {index}", content="推导")
+    set_plan(monkeypatch, "retrieve", "推导")
+    seen = []
+
+    def generate(_question, _history, context):
+        seen.append([item["knowledge_id"] for item in context.items])
+        key = context.items[-1]["key"]
+        return response(
+            AnswerDraft(
+                status="answered", answer=f"请见教材 [{key}]。", supplement="", citations=[key]
+            )
+        )
+
+    monkeypatch.setattr(chat, "generate_answer", generate)
+    _root, path = thread(client, course)
+    assert ask(client, path, "请解释").status_code == 200
+    result = ask(client, path, question)
+    assert result.status_code == 200, result.text
+    assert len(seen[0]) == len(seen[1]) == 6
+    assert point["id"] not in seen[0]
+    assert seen[1] == [*seen[0][:-1], point["id"]]
+    (citation,) = result.json()["citations"]
+    assert citation["current"]
+    assert citation["sources"][0]["page_number"] == 2
+    assert citation["sources"][0]["available"]
 
 
 @pytest.mark.parametrize("initial_route", ["context", "context_insufficient", "chat"])

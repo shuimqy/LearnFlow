@@ -7,8 +7,12 @@ from sqlalchemy.orm import Session
 from app.models import KnowledgeChunk, KnowledgePoint
 from app.models.base import utcnow
 
+CHUNK_SIZE = 1200
+CHUNK_OVERLAP = 240
+CHUNK_TEXT_FORMAT = "knowledge-title-summary-body-v1"
 
-def split_content(text: str, size: int = 1200, overlap: int = 240) -> list[str]:
+
+def split_content(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
     result = []
     start = 0
     while start < len(text):
@@ -26,15 +30,19 @@ def split_content(text: str, size: int = 1200, overlap: int = 240) -> list[str]:
     return result
 
 
-def rebuild_chunks(db: Session, point: KnowledgePoint) -> None:
+def chunk_texts(title: str, summary: str, content: str) -> list[str]:
+    prefix = f"# {title}\n\n" + (f"{summary}\n\n" if summary else "")
+    return [prefix + block for block in split_content(content)]
+
+
+def rebuild_chunks(db: Session, point: KnowledgePoint, *, enqueue_index: bool = True) -> None:
     # 与知识修订放在同一事务，提交后不会留下仍可检索的旧内容。
     db.execute(delete(KnowledgeChunk).where(KnowledgeChunk.knowledge_id == point.id))
     if point.status != "active":
         return
-    db.info.setdefault("knowledge_to_index", set()).add((point.id, point.version))
-    prefix = f"# {point.title}\n\n" + (f"{point.summary}\n\n" if point.summary else "")
-    for position, content in enumerate(split_content(point.content)):
-        text = prefix + content
+    if enqueue_index:
+        db.info.setdefault("knowledge_to_index", set()).add((point.id, point.version))
+    for position, text in enumerate(chunk_texts(point.title, point.summary, point.content)):
         db.add(
             KnowledgeChunk(
                 course_id=point.course_id,

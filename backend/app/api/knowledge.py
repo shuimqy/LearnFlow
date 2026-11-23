@@ -31,6 +31,7 @@ from app.schemas.knowledge import (
 )
 from app.services import knowledge as service
 from app.services.sources import extract_page
+from app.services.workbooks import has_saved_exercise
 
 router = APIRouter(tags=["knowledge"])
 
@@ -57,7 +58,11 @@ def list_knowledge(
     statement = (
         select(KnowledgePoint)
         .options(selectinload(KnowledgePoint.sources))
-        .where(KnowledgePoint.course_id == course_id, KnowledgePoint.status == status)
+        .where(
+            KnowledgePoint.course_id == course_id,
+            KnowledgePoint.status == status,
+            ~has_saved_exercise(),
+        )
     )
     if q.strip():
         statement = statement.where(
@@ -88,7 +93,7 @@ def knowledge_stats(course_id: str, user: CurrentUser, db: DB):
     counts = dict(
         db.execute(
             select(KnowledgePoint.status, func.count(KnowledgePoint.id))
-            .where(KnowledgePoint.course_id == course_id)
+            .where(KnowledgePoint.course_id == course_id, ~has_saved_exercise())
             .group_by(KnowledgePoint.status)
         ).all()
     )

@@ -101,6 +101,25 @@ class AnswerDraft(BaseModel):
         return self
 
 
+MAX_PDF_PAGE_READS = 2
+
+
+class PdfPageAnswerDraft(AnswerDraft):
+    status: Literal["answered", "insufficient", "needs_retrieval", "needs_pdf_pages"]
+    read_pdf_pages: list[str] = Field(max_length=MAX_PDF_PAGE_READS)
+
+    @model_validator(mode="after")
+    def valid_page_request(self):
+        if self.status == "needs_pdf_pages":
+            if not self.read_pdf_pages or self.citations or self.supplement.strip():
+                raise ValueError(
+                    "A PDF page request requires page references and no answer evidence"
+                )
+        elif self.read_pdf_pages:
+            raise ValueError("A final answer must not request PDF pages")
+        return self
+
+
 class ChatPlan(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     route: Literal["chat", "history", "context", "retrieve", "clarify", "image"]

@@ -42,6 +42,8 @@ def save_revision(
     operation: str,
     reason: str,
     proposal_id: str | None = None,
+    *,
+    enqueue_index: bool = True,
 ):
     if not reason.strip():
         raise HTTPException(422, "请填写修改原因")
@@ -59,7 +61,7 @@ def save_revision(
             proposal_id=proposal_id,
         )
     )
-    rebuild_chunks(db, point)
+    rebuild_chunks(db, point, enqueue_index=enqueue_index)
     db.execute(
         update(KnowledgeProposal)
         .where(

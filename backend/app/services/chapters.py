@@ -18,6 +18,7 @@ from app.models.base import utcnow
 from app.schemas.document_structure import ChapterDetection
 from app.services.llm import LLMClient
 from app.services.storage import storage_file
+from app.services.workbooks import has_saved_exercise, saved_exercise_conditions
 
 
 def chapter_list(db, course_id):
@@ -35,6 +36,7 @@ def chapter_list(db, course_id):
             .where(
                 KnowledgePoint.course_id == course_id,
                 KnowledgePoint.status == "active",
+                ~has_saved_exercise(),
                 KnowledgeSource.document_id == chapter.document_id,
                 KnowledgeSource.page_number.between(chapter.start_page, chapter.end_page),
             )
@@ -46,9 +48,8 @@ def chapter_list(db, course_id):
             .where(
                 PageExtraction.document_id == chapter.document_id,
                 PageExtraction.page_number.between(chapter.start_page, chapter.end_page),
-                ExtractionDraft.kind.in_(["exercise", "worked_example"]),
-                ExtractionDraft.status.in_(["imported", "accepted", "duplicate"]),
                 KnowledgePoint.status == "active",
+                *saved_exercise_conditions(),
             )
         )
         result.append(

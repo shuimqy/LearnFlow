@@ -24,7 +24,6 @@ class Settings(BaseSettings):
         "http://127.0.0.1:8000",
     ]
     cookie_secure: bool = False
-    max_upload_mb: int = 25
     session_days: int = 14
     model_encryption_key: SecretStr = SecretStr("")
     llm_provider: str = "aliyun"

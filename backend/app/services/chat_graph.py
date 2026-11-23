@@ -9,11 +9,19 @@ from pydantic import ValidationError
 
 from app.core.config import get_settings
 from app.core.model_runtime import use_model_settings
-from app.schemas.chat import AnswerDraft, ChatPlan, ConversationDraft, ImageObservation
+from app.schemas.chat import (
+    MAX_PDF_PAGE_READS,
+    AnswerDraft,
+    ChatPlan,
+    ConversationDraft,
+    ImageObservation,
+)
 from app.services.account_models import resolve_settings
 from app.services.chat_context import current_evidence
 from app.services.chat_generation import validate_answer
+from app.services.chat_images import MAX_IMAGES
 from app.services.chat_intent import asks_previous_question
+from app.services.chat_pdf import ReferencedPageImage, read_reference_pages, reference_pages
 from app.services.model_api import ModelAPIError
 from app.services.retrieval import RetrievedContext, retrieve_course
 from app.services.vector_index import enqueue_course_index
@@ -36,6 +44,8 @@ class ChatState(TypedDict):
     items: list[dict]
     retrieved: bool
     retrieval_mode: str
+    page_requests: list[str]
+    pdf_read_attempted: bool
     warnings: list[str]
     answer: dict | None
     model: str | None
@@ -58,6 +68,7 @@ class ChatRuntime:
     remember_images: Callable
     stage: Callable
     persist: Callable
+    pdf_page_images: tuple[ReferencedPageImage, ...] = ()
 
 
 def usage(state, response):
@@ -211,12 +222,16 @@ def retrieve(state: ChatState, runtime: Runtime[ChatRuntime]):
     ctx.stage("retrieving")
     if get_settings().embedding_auto_index:
         enqueue_course_index(ctx.db, ctx.course_id)
-    result = retrieve_course(ctx.db, ctx.course_id, ctx.user_id, state["query"])
+    result = retrieve_course(
+        ctx.db, ctx.course_id, ctx.user_id, state["query"], original_question=state["question"]
+    )
     ctx.db.commit()
+    ctx.pdf_page_images = ()
     return {
         "items": result.items,
         "retrieval_mode": result.mode,
         "retrieved": True,
+        "pdf_read_attempted": False,
         "warnings": list(dict.fromkeys([*state["warnings"], *result.warnings])),
     }
 
@@ -230,8 +245,21 @@ def generate(state: ChatState, runtime: Runtime[ChatRuntime]):
     ctx.stage("generating")
     settings = resolve_settings(ctx.db, ctx.user_id)
     ctx.db.commit()
+    page_limit = (
+        min(MAX_PDF_PAGE_READS, MAX_IMAGES - len(ctx.images))
+        if settings.llm_vision
+        and not state["pdf_read_attempted"]
+        and reference_pages(state["items"])
+        else 0
+    )
     evidence = RetrievedContext(
-        state["items"], state["retrieval_mode"], state["warnings"], images=ctx.images or None
+        state["items"],
+        state["retrieval_mode"],
+        state["warnings"],
+        images=ctx.images or None,
+        pdf_page_limit=page_limit,
+        pdf_page_images=ctx.pdf_page_images if settings.llm_vision else (),
+        pdf_read_attempted=state["pdf_read_attempted"],
     )
     with use_model_settings(settings):
         response = ctx.generate(state["effective_question"], state["history"], evidence)
@@ -239,11 +267,38 @@ def generate(state: ChatState, runtime: Runtime[ChatRuntime]):
         response.parsed,
         state["items"],
         allow_retrieval_request=state["retrieval_mode"] == "context",
+        allow_pdf_request=bool(page_limit),
     )
-    return {"answer": response.parsed.model_dump(), **usage(state, response)}
+    if response.parsed.status == "needs_pdf_pages":
+        return {
+            "answer": None,
+            "page_requests": response.parsed.read_pdf_pages,
+            **usage(state, response),
+        }
+    return {
+        "answer": response.parsed.model_dump(exclude={"read_pdf_pages"}),
+        **usage(state, response),
+    }
+
+
+def read_pdf_pages(state: ChatState, runtime: Runtime[ChatRuntime]):
+    ctx = runtime.context
+    ctx.stage("reading_pdf_pages")
+    requests = list(dict.fromkeys(state["page_requests"]))
+    limit = min(MAX_PDF_PAGE_READS, MAX_IMAGES - len(ctx.images))
+    ctx.pdf_page_images = tuple(
+        read_reference_pages(ctx.db, ctx.course_id, ctx.user_id, state["items"], requests[:limit])
+    )
+    ctx.db.commit()
+    warnings = state["warnings"]
+    if len(ctx.pdf_page_images) < len(requests):
+        warnings = list(dict.fromkeys([*warnings, "有引用页未能读取，可通过来源引用查看原文。"]))
+    return {"pdf_read_attempted": True, "page_requests": [], "warnings": warnings}
 
 
 def answer_route(state: ChatState):
+    if state["page_requests"]:
+        return "read_pdf_pages"
     status = state["answer"]["status"]
     if status == "needs_retrieval" or (
         status == "insufficient" and state["retrieval_mode"] == "context"
@@ -294,6 +349,7 @@ def build_chat_graph(checkpointer=None):
         ("reuse", reuse),
         ("retrieve", retrieve),
         ("generate", generate),
+        ("read_pdf_pages", read_pdf_pages),
         ("insufficient", insufficient),
         ("validate", validate),
         ("save", save),
@@ -318,8 +374,11 @@ def build_chat_graph(checkpointer=None):
     )
     for name in ("conversation", "generate"):
         graph.add_conditional_edges(
-            name, answer_route, {"retrieve": "retrieve", "validate": "validate"}
+            name,
+            answer_route,
+            {"retrieve": "retrieve", "validate": "validate", "read_pdf_pages": "read_pdf_pages"},
         )
+    graph.add_edge("read_pdf_pages", "generate")
     graph.add_edge("insufficient", "validate")
     graph.add_edge("validate", "save")
     graph.add_edge("save", END)

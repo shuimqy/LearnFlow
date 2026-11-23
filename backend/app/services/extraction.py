@@ -285,7 +285,7 @@ def render_knowledge(payload: AcceptDraft, page_warnings: list[str]) -> str:
     return content
 
 
-def store_draft(db, document, page, draft, user_id, payload, *, automatic):
+def store_draft(db, document, page, draft, user_id, payload, *, automatic, source_pages=None):
     content = render_knowledge(payload, page.warnings)
     existing = db.scalar(
         select(KnowledgePoint).where(
@@ -308,7 +308,12 @@ def store_draft(db, document, page, draft, user_id, payload, *, automatic):
         updated_by=user_id,
     )
     point.sources = resolve_sources(
-        db, document.course_id, [SourceInput(document_id=document.id, page_number=page.page_number)]
+        db,
+        document.course_id,
+        [
+            SourceInput(document_id=document.id, page_number=number)
+            for number in (source_pages or [page.page_number])
+        ],
     )
     db.add(point)
     save_revision(

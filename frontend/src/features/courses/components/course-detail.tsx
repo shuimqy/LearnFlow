@@ -8,6 +8,7 @@ import {
   ArrowUpRight,
   BookOpen,
   Check,
+  Download,
   FileText,
   MessageSquare,
   Settings2,
@@ -138,6 +139,15 @@ export default function CoursePage() {
           <FileText size={18} />
           课件做题本
         </Link>
+        <a
+          href={`/api/courses/${id}/export`}
+          className="button secondary"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Download size={18} />
+          导出课程包
+        </a>
       </nav>
       <div className="document-toolbar">
         <h2>
@@ -223,7 +233,6 @@ export default function CoursePage() {
             <Upload size={16} />
             选择 PDF 课件
           </button>
-          <span className="empty-footnote">单个文件不超过 25 MB</span>
         </section>
       )}
       <div className="course-danger-zone">

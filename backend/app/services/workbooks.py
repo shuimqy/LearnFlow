@@ -16,6 +16,25 @@ from app.models import (
 from app.models.base import utcnow
 
 
+def saved_exercise_conditions():
+    return (
+        PageExtraction.status == "completed",
+        ExtractionDraft.kind.in_(["exercise", "worked_example"]),
+        ExtractionDraft.status.in_(["imported", "accepted", "duplicate"]),
+        ExtractionDraft.example.is_not(None),
+    )
+
+
+def has_saved_exercise():
+    return (
+        select(ExtractionDraft.id)
+        .join(PageExtraction)
+        .where(ExtractionDraft.knowledge_id == KnowledgePoint.id, *saved_exercise_conditions())
+        .correlate(KnowledgePoint)
+        .exists()
+    )
+
+
 def exercise_statement(course_id):
     return (
         select(ExtractionDraft, PageExtraction, Document, KnowledgePoint)
@@ -26,10 +45,7 @@ def exercise_statement(course_id):
             Document.course_id == course_id,
             KnowledgePoint.course_id == course_id,
             KnowledgePoint.status == "active",
-            PageExtraction.status == "completed",
-            ExtractionDraft.kind.in_(["exercise", "worked_example"]),
-            ExtractionDraft.status.in_(["imported", "accepted", "duplicate"]),
-            ExtractionDraft.example.is_not(None),
+            *saved_exercise_conditions(),
         )
     )
 

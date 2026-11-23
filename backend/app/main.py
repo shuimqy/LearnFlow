@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     engine.dispose()
 
 
-app = FastAPI(title="LearnFlow", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="LearnFlow", version="0.2.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,

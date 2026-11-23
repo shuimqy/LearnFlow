@@ -930,6 +930,12 @@
     margin-left: 15px;
   }
 }
+.main-content:has(> .knowledge-page-heading) {
+  padding-top: clamp(20px, 2.5vw, 34px);
+}
+.page-heading.knowledge-page-heading {
+  margin-bottom: 24px;
+}
 .knowledge-toolbar {
   display: flex;
   justify-content: space-between;
@@ -2291,7 +2297,7 @@ fieldset {
   align-items: center;
   gap: 12px;
   color: var(--subtle);
-  font-size: 11px;
+  font-size: 13px;
   min-width: 0;
 }
 .breadcrumbs a:hover {
@@ -2316,6 +2322,14 @@ fieldset {
   justify-content: space-between;
   gap: 24px;
   margin-bottom: 35px;
+}
+.library-heading {
+  flex-wrap: wrap;
+}
+.library-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .eyebrow {
   font-size: 10px;
@@ -2775,7 +2789,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--subtle);
   margin-bottom: 26px;
 }
@@ -3295,7 +3309,8 @@ h1 {
   .page-heading {
     margin-bottom: 28px;
   }
-  .page-heading > .button {
+  .page-heading > .button,
+  .library-heading-actions .button {
     min-height: 36px;
     font-size: 12px;
     padding: 8px 11px;

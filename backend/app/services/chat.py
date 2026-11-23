@@ -229,6 +229,8 @@ def ask_question(db, course_id, conversation_id, user_id, payload, *, images=Non
             "query": "",
             "items": [],
             "retrieval_mode": "empty",
+            "page_requests": [],
+            "pdf_read_attempted": False,
             "warnings": [],
             "answer": None,
             "model": None,

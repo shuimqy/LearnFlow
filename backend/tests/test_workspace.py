@@ -146,9 +146,7 @@ def test_encrypted_pdf_is_rejected(client, course):
     assert upload(client, course, encrypted).status_code == 422
 
 
-def test_size_limit_and_invalid_preferences(client, course, pdf_bytes, monkeypatch):
-    monkeypatch.setattr(get_settings(), "max_upload_mb", 1)
-    assert upload(client, course, b"%PDF-" + b"x" * 1024 * 1024).status_code == 413
+def test_invalid_upload_preferences(client, course, pdf_bytes):
     assert upload(client, course, pdf_bytes, exercise_mode="unknown").status_code == 422
     assert list(get_settings().storage_path.rglob("*.pdf")) == []
 

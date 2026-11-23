@@ -5,12 +5,14 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   experimental: { proxyClientMaxBodySize: "30mb", proxyTimeout: 120_000 },
   async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${process.env.API_ORIGIN || "http://127.0.0.1:8000"}/api/:path*`,
-      },
-    ];
+    return {
+      fallback: [
+        {
+          source: "/api/:path*",
+          destination: `${process.env.API_ORIGIN || "http://127.0.0.1:8000"}/api/:path*`,
+        },
+      ],
+    };
   },
 };
 

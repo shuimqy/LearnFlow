@@ -7,6 +7,7 @@ from sqlalchemy import select
 from app.core.config import get_settings
 from app.core.model_secrets import decrypt_key, encrypt_key
 from app.models import AccountModels, Course, KnowledgeChunk, KnowledgeEmbedding, ModelProfile, User
+from app.services.knowledge_index import CHUNK_TEXT_FORMAT
 from app.services.model_api import local_endpoint
 
 
@@ -33,7 +34,7 @@ def default_config(kind, settings=None):
 
 
 def fingerprint(config):
-    value = {**config, "text_format": "knowledge-title-summary-body-v1"}
+    value = {**config, "text_format": CHUNK_TEXT_FORMAT}
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
 
 

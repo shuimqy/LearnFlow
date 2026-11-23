@@ -914,6 +914,7 @@ function stageLabel(stage: string | null) {
         planning: "正在理解问题…",
         checking_context: "正在核对已有依据…",
         retrieving: "正在检索课程知识…",
+        reading_pdf_pages: "正在读取引用页…",
         generating: "正在生成回答…",
         validating: "正在核对回答引用…",
         saving: "正在保存回答…",
