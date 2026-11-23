@@ -20,11 +20,13 @@ LearnFlow 是一个 Agent + 后端实践项目，想解决大学生用网页端�
 
 ## 快速开始
 
-以下以《离散数学》课程包为例。安装 [Node.js](https://nodejs.org/)（20.9 或以上，推荐 22）和 [uv](https://docs.astral.sh/uv/getting-started/installation/)；导出做题本 PDF 会用到 Microsoft Edge。
+以下以《离散数学》课程包为例。需要 Node.js 20.9 或以上（推荐 22）和 uv。导出做题本 PDF 时还需要 Microsoft Edge。 [Node.js](https://nodejs.org/) · [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ### 1. 启动 LearnFlow
 
-从 [v0.2.0 发布页](https://github.com/shuimqy/LearnFlow/releases/tag/v0.2.0) 下载 **Source code (zip)** 并解压，在项目目录双击 `start.bat`。也可以用 Git：
+下载 **Source code (zip)** 并解压，在项目目录双击 `start.bat`。 [v0.2.0 发布页](https://github.com/shuimqy/LearnFlow/releases/tag/v0.2.0)
+
+也可以用 Git 获取源码并启动。
 
 ```powershell
 git clone --branch v0.2.0 https://github.com/shuimqy/LearnFlow.git
@@ -42,13 +44,44 @@ cd LearnFlow
 
 <p align="center"><img src="docs/images/course-import.png" alt="选择离散数学 ZIP 后的导入课程窗口" width="460"></p>
 
-### 3. 开始课程问答
+### 3. 配置 LLM
 
-1. 在侧栏打开 **模型设置**，填写 LLM 接口地址、模型名和 API Key，测试连接并保存。
-2. 回到「离散数学」打开 **课程问答**，试问「什么是主析取范式？请结合课件解释」。从回答的引用可以跳到相应的 PDF 页。
-3. 想接着问某个步骤时，选中回答里的文字并发起分支，或者点击该条回答下的 **分支提问**。
+先在硅基流动创建 API Key。回到 LearnFlow，在侧栏打开 **模型设置 → LLM**。下面的配置可以先用来体验文字问答。 [硅基流动 API Key 获取指南](https://api-docs.siliconflow.cn/docs/userguide/quickstart)
 
-导入后可以用关键词检索。需要语义检索时，在模型设置配置 Embedding 并建立向量索引。课件识别、聊天附图和问答中读取 PDF 原页需要支持视觉的 LLM。
+| 设置               | 示例                                 |
+| ------------------ | ------------------------------------ |
+| 接口类型           | 硅基流动 SiliconFlow                 |
+| API 地址           | `https://api.siliconflow.cn/v1`      |
+| 模型名称           | `deepseek-ai/DeepSeek-V4-Flash`      |
+| API Key            | 自己在硅基流动生成的密钥             |
+| 结构化输出         | JSON Object                          |
+| 思考模式和图片识别 | 体验文字问答时使用预填配置，两项关闭 |
+
+点击 **测试连接**，通过后点击 **保存 LLM**。需要发送图片、识别新课件或在问答中查看 PDF 原页时，选择支持视觉的模型，并勾选 **模型支持图片识别**。 [硅基流动对话接口](https://api-docs.siliconflow.cn/docs/api/chat-completions-post)
+
+### 4. 配置 Embedding 并建立知识索引
+
+需要语义检索时，在同一页的 **Embedding** 区域填写下面的示例。LLM 和 Embedding 都用硅基流动时，两处可以填写同一把 API Key。 [硅基流动 Embedding 接口](https://api-docs.siliconflow.cn/docs/api/embeddings-post)
+
+| 设置                         | 示例                            |
+| ---------------------------- | ------------------------------- |
+| 接口类型                     | 硅基流动 SiliconFlow            |
+| API 地址                     | `https://api.siliconflow.cn/v1` |
+| 模型名称                     | `Qwen/Qwen3-Embedding-8B`       |
+| API Key                      | 自己在硅基流动生成的密钥        |
+| 向量维度                     | `1024`                          |
+| 请求中发送 `dimensions` 参数 | 勾选                            |
+
+1. 点击 **测试连接**，通过后点 **保存并更新索引**。首次配置会为已有知识建立索引，更换 Embedding 模型时也要用新模型重建索引。
+2. 在下方的 **知识索引** 查看进度。等待就绪数量达到总数，遇到失败可点 **补建 / 重试索引**。
+
+**课程问答在没有可用向量索引时只能按关键词检索。** 如果更换模型时已有可用索引，重建期间会继续用当前模型和索引，新索引完成后自动切换。
+
+知识文本和检索问题使用同一套 Embedding 配置生成向量。配置硅基流动后，生成向量所需的文本会发送到其接口，生成的知识向量保存在本机 PostgreSQL。
+
+### 5. 开始课程问答
+
+回到「离散数学」打开 **课程问答**，可以试问「什么是主析取范式？请结合课件解释」。从回答的引用可以跳到对应的 PDF 页。想追问某个步骤时，选中回答里的文字发起分支，或点击回答下方的 **分支提问**。
 
 ## 功能
 
@@ -108,14 +141,6 @@ flowchart LR
 | [课程包格式](docs/course-packages.md)                                                                   | 导入、导出与校验                   |
 | [知识库](docs/knowledge-base.md) · [课件提取](docs/extraction.md) · [修改建议](docs/proposal-review.md) | 分页识别、公式、来源与修订         |
 | [课程问答](docs/chat.md) · [做题本](docs/workbooks.md)                                                  | 分支、引用、选题与 PDF             |
-
-开发计划见 [todo.md](todo.md)。提交代码前可运行：
-
-```powershell
-uv run --locked --all-packages ruff check backend scripts
-uv run --locked --all-packages pytest -q
-npm.cmd --prefix frontend run typecheck
-```
 
 ## 许可证
 
